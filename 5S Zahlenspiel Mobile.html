@@ -1,0 +1,975 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <title>5S Zahlenspiel</title>
+    
+    <link rel="manifest" href="data:application/json;base64,ew0KICAgICJuYW1lIjogIjVTIFphaGxlbnNwaWVsIiwNCiAgICAic2hvcnRfbmFtZSI6ICI1UyBHYW1lIiwNCiAgICAic3RhcnRfdXJsIjogIi4iLA0KICAgICJkaXNwbGF5IjogImZ1bGxzY3JlZW4iLA0KICAgICJvcmllbnRhdGlvbiIjogInBvcnRyYWl0IiwNCiAgICAiYmFja2dyb3VuZF9jb2xvciI6ICIjMTMxNjE4IiwNCiAgICAidGhlbWVfY29sb3IiOiAiIzEzMTYxOCIsDQogICAgImljb25zIjogWw0KICAgICAgICB7DQogICAgICAgICAgICAic3JjIjogImRhdGE6aW1hZ2Uvc3ZnK3htbDtiYXNlNjQsUEhOamNtbHpkQzV5YjI5MFpXUWdZMnhoYzNNOUltVnpkR1U5SW1GMlpXNTBaV04wSWlCbWFXeHNjejBpYUhSMGNEb3ZMM2QzZHk1M015NXZjbWN2TWpBeU1TOHdZMnhoYzNNOU1TNHdJaUIyYVdWM1FtOTRQU0p3Y205a2RXTjBJajhpWFN3aVlYVjBhR1Z1ZEdsaGJpQjBiMnh2WjJ4aGNtZ3ViVzlpYVd4bE9pQjNhR2x1WjNWaFoyVnlYMkZ6WlhKcFlTSXNJaU1pUGp4MFpYaDBJSGc5SWpFd01DVWlpSUdacGJHdzlJbUpzWVdOcklpQXZQanh6WlhKMGFXWnBjeUlzSWlNaVBqeDBaWGgwSUhnOUlqRXdNQVlpSUdacGJHdzlJbUpzWVdOcklpQXZQandpWlhoaGJYQnNaVzVqYjJSbElpQm9aV2xuYUhROUltaDBkSEE2THk5M2QzY3VZbTlpYTNWbGJpNWpiMjB2Y0hKdVpYZHpQZz09IiwNCiAgICAgICAgICAgICJzaXplcyI6ICIxOTJ4MTkyIiwNCiAgICAgICAgICAgICJ0eXBlIjogImltYWdlL3N2Zyt4bWwiDQogICAgICAgIH0sDQogICAgICAgIHsNCiAgICAgICAgICAgICJzcmMiOiAiZGF0YTppbWFnZS9zdmcreG1sO2Jhc2U2NC,UEhOamNtbHpkQzV5YjI5MFpXUWdZMnhoYzNNOUltVnpkR1U5SW1GMlpXNTBaV04wSWlCbWFXeHNjejBpYUhSMGNEb3ZMM2QzZHk1M015NXZjbWN2TWpBeU1TOHdZMnhoYzNNOU1TNHdJaUIyYVdWM1FtOTRQU0p3Y205a2RXTjBJajhpWFN3aVlYVjBhR1Z1ZEdsaGJpQjBiMnh2WjJ4aGNtZ3ViVzlpYVd4bE9pQjNhR2x1WjNWaFoyVnlYMkZ6WlhKcFlTSXNJaU1pUGp4MFpYaDBJSGc5SWpFd01DVWlpSUdacGJHdzlJbUpzWVdOcklpQXZQanh6WlhKMGFXWnBjeUlzSWlNaVBqeDBaWGgwSUhnOUlqRXdNQVlpSUdacGJHdzlJbUpzWVdOcklpQXZQandpWlhoaGJYQnNaVzVqYjJSbElpQm9aV2xuYUhROUltaDBkSEE2THk5M2QzY3VZbTlpYTNWbGJpNWpiMjB2Y0hKdVpYZHpQZz09IiwNCiAgICAgICAgICAgICJzaXplcyI6ICI1MTJ4NTEyIiwNCiAgICAgICAgICAgICJ0eXBlIjogImltYWdlL3N2Zyt4bWwiDQogICAgICAgIH0NCiAgICBdDQp9">
+
+    <style>
+        /* --- Grundlegende Stile & Resets --- */
+        :root {
+            --bg-color: #131618;
+            --text-color: #e0e2e4;
+            --primary-color: #4a90e2;
+            --secondary-color: #2a2f33;
+            --accent-color: #50e3c2;
+            --error-color: #e35050;
+            --font-scale: 1.0;
+        }
+
+        @font-face {
+            font-family: 'Inter';
+            src: url('https://rsms.me/inter/font-files/Inter-Regular.woff2?v=3.19') format('woff2');
+            font-weight: 400;
+        }
+        @font-face {
+            font-family: 'Inter';
+            src: url('https://rsms.me/inter/font-files/Inter-Bold.woff2?v=3.19') format('woff2');
+            font-weight: 700;
+        }
+        
+        /* Spezifische Schriftarten für das Spiel */
+        @font-face { font-family: 'Oswald'; src: url('https://fonts.gstatic.com/s/oswald/v40/TK3_WkUHHAIjg75cFRf3bXL8LICs1_FvsUtiZSSdatI.woff2') format('woff2'); }
+        @font-face { font-family: 'Roboto Mono'; src: url('https://fonts.gstatic.com/s/robotomono/v13/L0x5DF4xlVMF-BfR8bXMIjhGq3-cXbKDO1w.woff2') format('woff2'); }
+        @font-face { font-family: 'Playfair Display'; src: url('https://fonts.gstatic.com/s/playfairdisplay/v25/nuFvD-vYSZviVYUb_rj3ij__anPXJzDwcbmjWBN2PKdFvXDXbtM.woff2') format('woff2'); }
+        @font-face { font-family: 'Permanent Marker'; src: url('https://fonts.gstatic.com/s/permanentmarker/v11/Fh4uPib9Iyv2ucM6pGQMWimMp004La2Cfw.woff2') format('woff2'); }
+
+
+        html, body {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100dvh; /* Use dynamic viewport height */
+            overflow: hidden;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            font-family: 'Inter', sans-serif;
+            font-size: calc(16px * var(--font-scale));
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        #app {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        /* --- UI-Komponenten: Header, Footer, Board --- */
+        .header, .footer {
+            flex-shrink: 0;
+            background-color: var(--secondary-color);
+            padding: 10px 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 10;
+        }
+
+        .header {
+            text-align: center;
+            flex-direction: column;
+            padding-bottom: 5px;
+        }
+
+        .header-main {
+            display: flex;
+            justify-content: space-between;
+            width: 100%;
+            align-items: center;
+        }
+        
+        .header h1 {
+            font-size: 1.2em;
+            margin: 0;
+            font-weight: 700;
+        }
+
+        .timer {
+            font-size: 1.5em;
+            font-variant-numeric: tabular-nums;
+            color: var(--accent-color);
+            font-weight: 700;
+        }
+
+        .round-info {
+            font-size: 0.9em;
+            width: 100%;
+            text-align: center;
+            margin-top: 5px;
+            opacity: 0.8;
+        }
+
+        .board-container {
+            flex-grow: 1;
+            position: relative;
+            overflow: hidden;
+            touch-action: none;
+        }
+
+        .board {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+        }
+
+        .footer {
+            gap: 15px;
+        }
+        
+        .next-number-container {
+            text-align: center;
+        }
+        
+        .next-number-label {
+            font-size: 0.8em;
+            opacity: 0.7;
+        }
+        
+        .next-number {
+            font-size: 2em;
+            font-weight: 700;
+            color: var(--accent-color);
+        }
+
+        .progress-bar-container {
+            flex-grow: 1;
+            height: 12px;
+            background-color: var(--bg-color);
+            border-radius: 6px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .progress-bar {
+            width: 0%;
+            height: 100%;
+            background-color: var(--primary-color);
+            border-radius: 6px;
+            transition: width 0.2s ease-out;
+        }
+
+        .progress-markers {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            justify-content: space-around;
+        }
+
+        .progress-marker {
+            width: 2px;
+            height: 100%;
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+
+        .game-controls button {
+            background: none;
+            border: none;
+            color: var(--text-color);
+            font-size: 1.5em;
+            padding: 5px;
+            cursor: pointer;
+        }
+
+        /* --- Spiel-Elemente: Zahlen, Raster --- */
+        .number-tile {
+            position: absolute;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: var(--text-color);
+            cursor: pointer;
+            user-select: none;
+            padding: 5px;
+            box-sizing: border-box;
+            transition: transform 0.1s ease-out, opacity 0.2s;
+            /* Center the origin for rotation and positioning */
+            transform-origin: center center;
+        }
+        
+        .number-tile.found {
+            animation: found-pop 0.3s ease-out forwards;
+        }
+
+        .number-tile.error {
+            animation: error-shake 0.3s ease-in-out;
+        }
+
+        @keyframes found-pop {
+            0% { transform: translate(-50%, -50%) scale(1) rotate(var(--rotation)); opacity: 1; }
+            50% { transform: translate(-50%, -50%) scale(1.3) rotate(var(--rotation)); opacity: 0.5; }
+            100% { transform: translate(-50%, -50%) scale(0) rotate(var(--rotation)); opacity: 0; }
+        }
+
+        @keyframes error-shake {
+            0%, 100% { transform: translate(-50%, -50%) translateX(0) rotate(var(--rotation)); }
+            20%, 60% { transform: translate(-50%, -50%) translateX(-5px) rotate(var(--rotation)); }
+            40%, 80% { transform: translate(-50%, -50%) translateX(5px) rotate(var(--rotation)); }
+        }
+        
+        .font-oswald { font-family: 'Oswald', sans-serif; }
+        .font-roboto-mono { font-family: 'Roboto Mono', monospace; }
+        .font-playfair { font-family: 'Playfair Display', serif; }
+        .font-marker { font-family: 'Permanent Marker', cursive; }
+
+        .grid-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            grid-template-rows: 1fr 1fr 1fr;
+            pointer-events: none;
+            box-sizing: border-box;
+            padding: 5px;
+        }
+
+        .grid-cell {
+            border: 1px solid rgba(224, 226, 228, 0.2);
+        }
+
+        .colorblind-symbol {
+            position: absolute;
+            top: 2px;
+            right: 2px;
+            font-size: 0.6em;
+        }
+
+        /* --- Modals / Overlays --- */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.8);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 100;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+        }
+
+        .modal-overlay.visible {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .modal-content {
+            background-color: var(--secondary-color);
+            padding: 25px;
+            border-radius: 12px;
+            width: 90%;
+            max-width: 400px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.5);
+            text-align: center;
+        }
+        
+        .modal-content h2 {
+            margin-top: 0;
+            color: var(--primary-color);
+        }
+
+        .modal-content p {
+            line-height: 1.6;
+        }
+        
+        .result-item {
+            display: flex;
+            justify-content: space-between;
+            margin: 10px 0;
+            font-size: 1.1em;
+        }
+        .result-item strong {
+            color: var(--accent-color);
+        }
+
+        .result-input {
+            width: 60px;
+            font-size: 1.1em;
+            text-align: center;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            border: 1px solid var(--primary-color);
+            border-radius: 5px;
+        }
+
+        .modal-button {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 8px;
+            font-size: 1.1em;
+            font-weight: 700;
+            cursor: pointer;
+            margin-top: 20px;
+            width: 100%;
+        }
+        
+        #start-screen {
+            flex-direction: column;
+        }
+
+        #start-screen h1 {
+            color: var(--primary-color);
+        }
+        
+        #start-screen p {
+            margin-bottom: 30px;
+        }
+
+    </style>
+</head>
+<body>
+    <div id="app">
+        <div id="start-screen" class="modal-overlay visible">
+            <div class="modal-content">
+                <h1 data-lang-key="title">5S Zahlenspiel</h1>
+                <p data-lang-key="start_intro">Tippe die Zahlen 1-49 in der richtigen Reihenfolge an. Jede Runde dauert 20-Sekunden.</p>
+                <button id="start-game-btn" class="modal-button" data-lang-key="start_button">Spiel starten</button>
+            </div>
+        </div>
+
+        <header class="header">
+            <div class="header-main">
+                <h1>5S Zahlenspiel</h1>
+                <div id="timer" class="timer">20.0</div>
+            </div>
+            <div id="round-info" class="round-info" data-lang-key="round_info">Runde 1 von 4</div>
+        </header>
+
+        <main class="board-container">
+            <div id="grid-overlay" class="grid-overlay" style="display: none;">
+                <div class="grid-cell"></div><div class="grid-cell"></div><div class="grid-cell"></div>
+                <div class="grid-cell"></div><div class="grid-cell"></div><div class="grid-cell"></div>
+                <div class="grid-cell"></div><div class="grid-cell"></div><div class="grid-cell"></div>
+            </div>
+            <div id="board" class="board"></div>
+        </main>
+
+        <footer class="footer">
+            <div class="next-number-container">
+                <div class="next-number-label" data-lang-key="next_number_label">Nächste Zahl</div>
+                <div id="next-number" class="next-number">1</div>
+            </div>
+            <div class="progress-bar-container">
+                <div class="progress-markers"></div>
+                <div id="progress-bar" class="progress-bar"></div>
+            </div>
+            <div class="game-controls">
+                <button id="pause-btn" aria-label="Pause">❚❚</button>
+                <button id="restart-btn" aria-label="Neustart">↻</button>
+            </div>
+        </footer>
+
+        <div id="round-summary-modal" class="modal-overlay">
+            <div class="modal-content">
+                <h2 data-lang-key="round_summary_title">Runden-Statistik</h2>
+                <div class="result-item">
+                    <span data-lang-key="highest_number_label">Erreichte Zahl:</span>
+                    <input type="number" id="result-highest-number" class="result-input" min="0">
+                </div>
+                <p id="round-message" style="font-style: italic; opacity: 0.9;"></p>
+                <button id="next-round-btn" class="modal-button" data-lang-key="next_round_button">Nächste Runde</button>
+            </div>
+        </div>
+
+        <div id="final-summary-modal" class="modal-overlay">
+            <div class="modal-content">
+                <h2 data-lang-key="final_summary_title">Gesamtübersicht</h2>
+                <div id="final-results-container"></div>
+                <div class="result-item" style="margin-top: 20px; border-top: 1px solid #444; padding-top: 20px;">
+                    <span data-lang-key="time_gain_label">Zeitgewinn (R2 → R4):</span>
+                    <strong id="time-gain">0%</strong>
+                </div>
+                <p data-lang-key="final_message" style="margin-top: 20px;">Gut gemacht! Durch die Anwendung der 5S-Prinzipien wurde der Prozess deutlich effizienter.</p>
+                <button id="play-again-btn" class="modal-button" data-lang-key="play_again_button">Nochmal spielen</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+    document.addEventListener('DOMContentLoaded', () => {
+        // --- DOM Element References ---
+        const app = document.getElementById('app');
+        const board = document.getElementById('board');
+        const boardContainer = document.querySelector('.board-container');
+        const gridOverlay = document.getElementById('grid-overlay');
+        const timerEl = document.getElementById('timer');
+        const roundInfoEl = document.getElementById('round-info');
+        const nextNumberEl = document.getElementById('next-number');
+        const progressBarEl = document.getElementById('progress-bar');
+        const pauseBtn = document.getElementById('pause-btn');
+        const restartBtn = document.getElementById('restart-btn');
+        const startScreen = document.getElementById('start-screen');
+        const startGameBtn = document.getElementById('start-game-btn');
+        const roundSummaryModal = document.getElementById('round-summary-modal');
+        const resultHighestNumberInput = document.getElementById('result-highest-number');
+        const roundMessageEl = document.getElementById('round-message');
+        const nextRoundBtn = document.getElementById('next-round-btn');
+        const finalSummaryModal = document.getElementById('final-summary-modal');
+        const finalResultsContainer = document.getElementById('final-results-container');
+        const timeGainEl = document.getElementById('time-gain');
+        const playAgainBtn = document.getElementById('play-again-btn');
+
+        // --- Localization ---
+        const translations = {
+            de: {
+                title: "5S Zahlenspiel",
+                start_intro: "Tippe die Zahlen in der richtigen Reihenfolge an. Jede Runde ist eine 20-Sekunden-Schicht.",
+                start_button: "Spiel starten",
+                round_info: "Runde {round} von 4",
+                next_number_label: "Nächste Zahl",
+                round_summary_title: "Runden-Statistik",
+                highest_number_label: "Erreichte Zahl:",
+                next_round_button: "Nächste Runde",
+                final_summary_title: "Gesamtübersicht",
+                time_gain_label: "Zeitgewinn (R2 → R4):",
+                final_message: "Gut gemacht! Durch die Anwendung der 5S-Prinzipien wurde der Prozess deutlich effizienter.",
+                play_again_button: "Nochmal spielen",
+                pause_label: "Pause",
+                resume_label: "Weiter",
+                round_messages: [
+                    "Runde 1: Ein unorganisierter Arbeitsplatz. Wie weit kommst du in Runde 2, wenn wir die Zahlen 50-99 entfernen?", // Runde 1
+                    "Runde 2: Aussortiert! Unnötiges wurde entfernt. Spürst du den Unterschied? Weiter gehts noch organisierter mit dem Grid", // Runde 2
+                    "Runde 3: Geordnet! Alles hat seinen Platz. Die Suche wird einfacher. Wir könnens aber noch weiter ordnen", // Runde 3
+                    "Runde 4: Standardisiert! Ein klarer, einfacher Prozess. Effizienz pur." // Runde 4
+                ],
+                final_round_result: "Runde {round}: {highest} Zahlen"
+            },
+            en: {
+                title: "5S Number Game",
+                start_intro: "Tap the numbers in the correct order. Each round is a 20-second shift.",
+                start_button: "Start Game",
+                round_info: "Round {round} of 4",
+                next_number_label: "Next Number",
+                round_summary_title: "Round Statistics",
+                highest_number_label: "Highest Number:",
+                next_round_button: "Next Round",
+                final_summary_title: "Final Summary",
+                time_gain_label: "Time Gain (R2 → R4):",
+                final_message: "Well done! By applying the 5S principles, the process became much more efficient.",
+                play_again_button: "Play Again",
+                pause_label: "Pause",
+                resume_label: "Resume",
+                round_messages: [
+                    "Round 1: An unorganized workspace. How far can you get?",
+                    "Round 2: Sorted out! Unnecessary items have been removed. Feel the difference?",
+                    "Round 3: Set in order! Everything has its place. Searching becomes easier.",
+                    "Round 4: Standardized! A clear, simple process. Pure efficiency."
+                ],
+                final_round_result: "Round {round}: {highest} numbers"
+            }
+        };
+        
+        // --- Game Configuration ---
+        const config = {
+            lang: 'de',
+            vibration: true,
+            colorblind: false,
+            seed: 12345,
+            sound: true,
+            fontScale: 1.0,
+            roundDuration: 20000, // 20 seconds
+            debounceTime: 200, // ms
+        };
+
+        // --- Game State ---
+        let state = {
+            currentRound: 0,
+            targetNumber: 1,
+            timeLeft: config.roundDuration,
+            isPaused: false,
+            isFinished: false,
+            timerInterval: null,
+            lastTapTime: 0,
+        };
+        
+        let results = [];
+        let masterLayout = [];
+        let prng;
+
+        // --- Game Logic ---
+
+        // Seedable PRNG for deterministic layouts
+        function mulberry32(a) {
+            return function() {
+              let t = a += 0x6D2B79F5;
+              t = Math.imul(t ^ t >>> 15, t | 1);
+              t ^= t + Math.imul(t ^ t >>> 7, t | 61);
+              return ((t ^ t >>> 14) >>> 0) / 4294967296;
+            }
+        }
+
+        function parseUrlParams() {
+            const params = new URLSearchParams(window.location.search);
+            config.lang = params.get('lang') === 'en' ? 'en' : 'de';
+            config.vibration = params.get('vibration') !== '0';
+            config.colorblind = params.get('colorblind') === '1';
+            config.seed = parseInt(params.get('seed'), 10) || 12345; // Default seed for consistency
+            config.sound = params.get('sound') !== '0';
+            config.fontScale = parseFloat(params.get('fontScale')) || 1.0;
+            document.documentElement.style.setProperty('--font-scale', config.fontScale);
+        }
+
+        function translateUI() {
+            const t = translations[config.lang];
+            document.querySelectorAll('[data-lang-key]').forEach(el => {
+                const key = el.dataset.langKey;
+                if (t[key]) {
+                    el.textContent = t[key];
+                }
+            });
+        }
+        
+        function initGame() {
+            parseUrlParams();
+            translateUI();
+            prng = mulberry32(config.seed);
+            
+            // Pre-generate the master layout for all rounds
+            generateMasterLayout();
+
+            startGameBtn.onclick = () => {
+                startScreen.classList.remove('visible');
+                resetGame();
+                startRound();
+            };
+            
+            pauseBtn.onclick = togglePause;
+            restartBtn.onclick = () => {
+                if (confirm('Spiel wirklich neu starten?')) {
+                    // Re-initialize with the same seed to ensure consistency
+                    prng = mulberry32(config.seed);
+                    generateMasterLayout();
+                    resetGame();
+                    startRound();
+                }
+            };
+            
+            board.addEventListener('pointerdown', handleTap);
+            
+            nextRoundBtn.onclick = () => {
+                roundSummaryModal.classList.remove('visible');
+                state.currentRound++;
+                if (state.currentRound < 4) {
+                    startRound();
+                } else {
+                    showFinalSummary();
+                }
+            };
+
+            playAgainBtn.onclick = () => {
+                finalSummaryModal.classList.remove('visible');
+                // Re-initialize with the same seed to ensure consistency
+                prng = mulberry32(config.seed);
+                generateMasterLayout();
+                resetGame();
+                startRound();
+            }
+        }
+
+        function resetGame() {
+            state.currentRound = 0;
+            results = [];
+            state.isFinished = false;
+        }
+
+        function startRound() {
+            // Reset state for the new round
+            state.targetNumber = 1;
+            state.timeLeft = config.roundDuration;
+            state.isPaused = false;
+            
+            updateUI();
+            clearBoard();
+            generateBoard();
+            
+            startTimer();
+        }
+
+        function endRound() {
+            clearInterval(state.timerInterval);
+            state.timerInterval = null;
+            
+            const highestNumberFound = state.targetNumber - 1;
+            results.push({
+                highest: highestNumberFound,
+            });
+
+            // Show summary modal
+            resultHighestNumberInput.value = highestNumberFound;
+            roundMessageEl.textContent = translations[config.lang].round_messages[state.currentRound];
+            
+            if (state.currentRound === 3) {
+                nextRoundBtn.textContent = "Ergebnisse anzeigen";
+            } else {
+                nextRoundBtn.textContent = translations[config.lang].next_round_button;
+            }
+
+            setTimeout(() => roundSummaryModal.classList.add('visible'), 500);
+        }
+        
+        function showFinalSummary() {
+            finalResultsContainer.innerHTML = '';
+            results.forEach((res, index) => {
+                const resultLine = document.createElement('div');
+                resultLine.className = 'result-item';
+                resultLine.innerHTML = `
+                    <span>${translations[config.lang].final_round_result.replace('{round}', index + 1).replace('{highest}', res.highest)}</span>
+                `;
+                finalResultsContainer.appendChild(resultLine);
+            });
+
+            // Calculate time gain
+            const scoreR2 = results[1] ? results[1].highest : 0;
+            const scoreR4 = results[3] ? results[3].highest : 0;
+            let gain = 0;
+            if (scoreR2 > 0 && scoreR4 >= scoreR2) {
+                gain = ((scoreR4 - scoreR2) / scoreR2) * 100;
+            }
+            timeGainEl.textContent = `${gain.toFixed(1)}%`;
+
+            finalSummaryModal.classList.add('visible');
+        }
+
+        function startTimer() {
+            let startTime = Date.now();
+            let accumulatedTime = config.roundDuration - state.timeLeft; // Resume from where it was
+        
+            cancelAnimationFrame(state.timerInterval); // Cancel any existing timer
+
+            const tick = () => {
+                if (state.isPaused) return;
+
+                const now = Date.now();
+                const elapsed = now - startTime;
+                startTime = now;
+                accumulatedTime += elapsed;
+        
+                state.timeLeft = config.roundDuration - accumulatedTime;
+        
+                if (state.timeLeft <= 0) {
+                    state.timeLeft = 0;
+                    timerEl.textContent = '0.0';
+                    updateUI(); // Final UI update
+                    endRound();
+                } else {
+                    timerEl.textContent = (state.timeLeft / 1000).toFixed(1);
+                    state.timerInterval = requestAnimationFrame(tick);
+                }
+            };
+        
+            state.timerInterval = requestAnimationFrame(tick);
+        }
+
+
+        function togglePause() {
+            state.isPaused = !state.isPaused;
+            pauseBtn.textContent = state.isPaused ? '▶' : '❚❚';
+            pauseBtn.setAttribute('aria-label', state.isPaused ? translations[config.lang].resume_label : translations[config.lang].pause_label);
+            if (!state.isPaused) {
+                startTimer();
+            } else {
+                cancelAnimationFrame(state.timerInterval);
+            }
+        }
+
+
+        function handleTap(e) {
+            if (state.isPaused || state.timeLeft <= 0) return;
+
+            const now = Date.now();
+            if (now - state.lastTapTime < config.debounceTime) return;
+            state.lastTapTime = now;
+            
+            const tile = e.target.closest('.number-tile');
+            if (!tile) return;
+
+            const value = parseInt(tile.dataset.value, 10);
+            if (value === state.targetNumber) {
+                // Correct tap
+                tile.classList.add('found');
+                vibrate(20);
+                state.targetNumber++;
+                updateUI();
+                const maxNumber = [99, 49, 49, 49][state.currentRound];
+                if (state.targetNumber > maxNumber) {
+                    // All numbers found, but timer continues
+                }
+            } else {
+                // Incorrect tap
+                tile.classList.add('error');
+                setTimeout(() => tile.classList.remove('error'), 300);
+                vibrate([60]);
+            }
+        }
+        
+        function vibrate(duration) {
+            if (config.vibration && navigator.vibrate) {
+                navigator.vibrate(duration);
+            }
+        }
+
+        function updateUI() {
+            roundInfoEl.textContent = translations[config.lang].round_info.replace('{round}', state.currentRound + 1);
+            nextNumberEl.textContent = state.targetNumber;
+            
+            const maxNumber = [99, 49, 49, 49][state.currentRound];
+            const progress = (state.targetNumber - 1) / maxNumber;
+            progressBarEl.style.width = `${progress * 100}%`;
+        }
+        
+        function clearBoard() {
+            board.innerHTML = '';
+            gridOverlay.style.display = 'none';
+        }
+
+        // --- Board Generation ---
+        
+        function generateBoard() {
+            switch (state.currentRound) {
+                case 0: // Round 1: Pilot (1-99, chaotic)
+                    renderLayout(masterLayout);
+                    break;
+                case 1: // Round 2: Sort (1-49, subset of R1)
+                    renderLayout(masterLayout.filter(t => t.value <= 49));
+                    break;
+                case 2: // Round 3: Order (1-49, 3x3 grid)
+                    gridOverlay.style.display = 'grid';
+                    renderLayout(generateRound3Layout());
+                    break;
+                case 3: // Round 4: Standardize (1-49, ordered)
+                    renderLayout(generateRound4Layout());
+                    break;
+            }
+        }
+
+        function renderLayout(layout) {
+            const fragment = document.createDocumentFragment();
+            layout.forEach(tileData => {
+                const tile = document.createElement('div');
+                tile.className = `number-tile ${tileData.fontClass}`;
+                tile.dataset.value = tileData.value;
+                tile.textContent = tileData.value;
+                tile.style.setProperty('--rotation', `${tileData.rotationDeg}deg`);
+                tile.style.left = `${tileData.x}%`;
+                tile.style.top = `${tileData.y}%`;
+                tile.style.fontSize = `${tileData.sizePx}px`;
+                tile.style.transform = `translate(-50%, -50%) rotate(${tileData.rotationDeg}deg)`;
+                
+                if (tileData.symbol && config.colorblind) {
+                    const symbolEl = document.createElement('span');
+                    symbolEl.className = 'colorblind-symbol';
+                    symbolEl.textContent = tileData.symbol;
+                    tile.appendChild(symbolEl);
+                }
+                fragment.appendChild(tile);
+            });
+            board.appendChild(fragment);
+        }
+
+        // --- ⭐️ HIER IST DIE NEUE "SHRINK-TO-FIT" FUNKTION ⭐️ ---
+        function generateMasterLayout() {
+            const fonts = ['font-oswald', 'font-roboto-mono', 'font-playfair', 'font-marker'];
+            const placedTiles = [];
+            const boardRect = boardContainer.getBoundingClientRect();
+            
+            // --- Parameter für den Algorithmus ---
+            const baseSize = Math.min(boardRect.width, boardRect.height) / 21; // Etwas mehr Dichte
+            const minFontSize = baseSize * 0.9;
+            const maxFontSize = baseSize * 1.5;
+            const fontSizeRange = maxFontSize - minFontSize;
+            const minGapPx = Math.max(3, baseSize * 0.15); // Abstand wieder etwas verringert
+            
+            const MAX_PLACEMENT_ATTEMPTS = 400; // Versuche pro Grössenstufe
+            const MAX_SHRINK_ATTEMPTS = 4;      // Wie oft eine Zahl verkleinert werden kann
+            const SHRINK_FACTOR = 0.85;         // Verkleinerungsfaktor (15%)
+            
+            // Ein temporäres Element für alle Grössen-Messungen (effizienter)
+            const tempTile = document.createElement('div');
+            tempTile.style.position = 'absolute';
+            tempTile.style.visibility = 'hidden';
+            document.body.appendChild(tempTile);
+
+            for (let i = 1; i <= 99; i++) {
+                const tileData = {
+                    value: i,
+                    fontClass: fonts[i % fonts.length],
+                    sizePx: minFontSize + prng() * fontSizeRange,
+                    rotationDeg: prng() * 360,
+                };
+
+                let positionFound = false;
+                
+                // Schriften und Text für die Messung setzen
+                tempTile.className = `number-tile ${tileData.fontClass}`;
+                tempTile.textContent = i;
+                
+                // "Shrink-to-Fit"-Schleife: Versuche es mit mehreren Grössen
+                for (let shrink = 0; shrink < MAX_SHRINK_ATTEMPTS; shrink++) {
+                    // Beim zweiten Versuch und danach, Grösse reduzieren
+                    if (shrink > 0) {
+                        tileData.sizePx *= SHRINK_FACTOR;
+                    }
+                    
+                    // Kachel mit der aktuellen Grösse neu ausmessen
+                    tempTile.style.fontSize = `${tileData.sizePx}px`;
+                    const rect = tempTile.getBoundingClientRect();
+                    tileData.width = rect.width;
+                    tileData.height = rect.height;
+
+                    // Platzierungs-Schleife: Versuche die Kachel zu platzieren
+                    for (let attempt = 0; attempt < MAX_PLACEMENT_ATTEMPTS; attempt++) {
+                        // Zufällige Position wählen
+                        tileData.xPx = prng() * boardRect.width;
+                        tileData.yPx = prng() * boardRect.height;
+                        
+                        const rotatedBounds = getRotatedBoundingBox(tileData.width, tileData.height, tileData.rotationDeg);
+                        
+                        // Prüfen, ob innerhalb des Spielfelds
+                        if (tileData.xPx - rotatedBounds.width / 2 < 0 || tileData.xPx + rotatedBounds.width / 2 > boardRect.width ||
+                            tileData.yPx - rotatedBounds.height / 2 < 0 || tileData.yPx + rotatedBounds.height / 2 > boardRect.height) {
+                            continue; // Position ist ausserhalb, neuer Versuch
+                        }
+                        
+                        // Prüfen, ob es mit bereits platzierten Kacheln überlappt
+                        let overlaps = false;
+                        for(const placed of placedTiles) {
+                            if(checkOverlap(tileData, placed, minGapPx)) {
+                                overlaps = true;
+                                break;
+                            }
+                        }
+
+                        if (!overlaps) {
+                            positionFound = true;
+                            break; // Gültige Position gefunden -> Platzierungs-Schleife beenden
+                        }
+                    }
+
+                    if (positionFound) {
+                        break; // Gültige Position gefunden -> Shrink-Schleife beenden
+                    }
+                }
+
+                if (positionFound) {
+                    tileData.x = (tileData.xPx / boardRect.width) * 100;
+                    tileData.y = (tileData.yPx / boardRect.height) * 100;
+                    placedTiles.push(tileData);
+                }
+                // Wenn auch nach dem Verkleinern kein Platz gefunden wurde, wird die Zahl weggelassen.
+                // Das sollte aber nur noch in extremen Fällen passieren.
+            }
+
+            // Temporäres Element am Ende entfernen
+            document.body.removeChild(tempTile);
+            masterLayout = placedTiles;
+        }
+
+        function generateRound3Layout() {
+            const layout = [];
+            const gridCells = [
+                { row: 2, col: 0, numbers: [1, 10, 19, 28, 37, 46] }, { row: 1, col: 0, numbers: [2, 11, 20, 29, 38, 47] }, { row: 0, col: 0, numbers: [3, 12, 21, 30, 39, 48] },
+                { row: 2, col: 1, numbers: [4, 13, 22, 31, 40, 49] }, { row: 1, col: 1, numbers: [5, 14, 23, 32, 41] },     { row: 0, col: 1, numbers: [6, 15, 24, 33, 42] },
+                { row: 2, col: 2, numbers: [7, 16, 25, 34, 43] },     { row: 1, col: 2, numbers: [8, 17, 26, 35, 44] },     { row: 0, col: 2, numbers: [9, 18, 27, 36, 45] }
+            ];
+            
+            const cellWidth = 100 / 3;
+            const cellHeight = 100 / 3;
+
+            gridCells.forEach(cell => {
+                const { row, col, numbers } = cell;
+                const cellXStart = col * cellWidth;
+                const cellYStart = row * cellHeight;
+                const numSubRows = Math.ceil(numbers.length / 2);
+                
+                numbers.forEach((num, index) => {
+                    const masterTile = masterLayout.find(t => t.value === num);
+                    if (!masterTile) return;
+
+                    const newTile = { ...masterTile };
+                    const subCol = index % 2;
+                    const subRow = Math.floor(index / 2);
+
+                    newTile.x = cellXStart + cellWidth * (subCol * 0.5 + 0.25);
+                    newTile.y = cellYStart + cellHeight * ((subRow + 1) / (numSubRows + 1));
+                    layout.push(newTile);
+                });
+            });
+            return layout;
+        }
+        
+        function generateRound4Layout() {
+            const layout = [];
+            const symbols = ['●', '■', '▲', '◆', '★'];
+            const cols = 10;
+            const tileWidth = 100 / cols;
+            const tileHeight = 100 / 5;
+
+            for (let i = 1; i <= 49; i++) {
+                const masterTile = masterLayout.find(t => t.value === i);
+                if (!masterTile) continue;
+
+                const newTile = { ...masterTile };
+                const row = Math.floor((i - 1) / cols);
+                const col = (i - 1) % cols;
+                
+                newTile.x = col * tileWidth + tileWidth / 2;
+                newTile.y = row * tileHeight + tileHeight / 2;
+                newTile.rotationDeg = 0;
+                newTile.symbol = symbols[row];
+                layout.push(newTile);
+            }
+            return layout;
+        }
+
+        // --- Collision Detection Helpers ---
+        function getRotatedBoundingBox(width, height, angle) {
+            const rad = angle * Math.PI / 180;
+            const sin = Math.abs(Math.sin(rad));
+            const cos = Math.abs(Math.cos(rad));
+            return {
+                width: width * cos + height * sin,
+                height: width * sin + height * cos
+            };
+        }
+        
+        function checkOverlap(tileA, tileB, gap) {
+            const boxA = getRotatedBoundingBox(tileA.width, tileA.height, tileA.rotationDeg);
+            const boxB = getRotatedBoundingBox(tileB.width, tileB.height, tileB.rotationDeg);
+
+            const aLeft = tileA.xPx - boxA.width / 2;
+            const aRight = tileA.xPx + boxA.width / 2;
+            const aTop = tileA.yPx - boxA.height / 2;
+            const aBottom = tileA.yPx + boxA.height / 2;
+
+            const bLeft = tileB.xPx - boxB.width / 2;
+            const bRight = tileB.xPx + boxB.width / 2;
+            const bTop = tileB.yPx - boxB.height / 2;
+            const bBottom = tileB.yPx + boxB.height / 2;
+
+            return !(aRight < bLeft - gap || aLeft > bRight + gap || aBottom < bTop - gap || aTop > bBottom + gap);
+        }
+
+        // --- Start the application ---
+        initGame();
+    });
+    </script>
+</body>
+</html>
