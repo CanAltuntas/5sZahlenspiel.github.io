@@ -324,6 +324,12 @@
             color: var(--accent-color);
         }
 
+        .result-item .round-time {
+            opacity: 0.7;
+            font-size: 0.9em;
+            margin-left: 10px;
+        }
+
         .result-input {
             width: 60px;
             font-size: 1.1em;
@@ -370,7 +376,7 @@
         <div id="start-screen" class="modal-overlay">
             <div class="modal-content">
                 <h1 data-lang-key="title">5S Zahlenspiel</h1>
-                <p data-lang-key="start_intro">Runde 1: Die Aufgabe ist, in 25 Sekunden die Zahlen 1-49 anzutippen. Runde 1 stellt die Ist-Situation dar, also einen unorganisierten Arbeitsplatz/ineffiziente Prozesse</p>
+                <p data-lang-key="start_intro">Tippe die Zahlen 1-49 in der richtigen Reihenfolge an. Jede Runde dauert 25-Sekunden.</p>
                 <button id="start-game-btn" class="modal-button" data-lang-key="start_button">Spiel starten</button>
             </div>
         </div>
@@ -423,10 +429,6 @@
             <div class="modal-content">
                 <h2 data-lang-key="final_summary_title">Gesamtübersicht</h2>
                 <div id="final-results-container"></div>
-                <div class="result-item" style="margin-top: 20px; border-top: 1px solid #444; padding-top: 20px;">
-                    <span data-lang-key="time_gain_label">Zeitgewinn (R2 → R4):</span>
-                    <strong id="time-gain">0%</strong>
-                </div>
                 <p data-lang-key="final_message" style="margin-top: 20px;">Gut gemacht! Durch die Anwendung der 5S-Prinzipien wurde der Prozess deutlich effizienter.</p>
                 <button id="play-again-btn" class="modal-button" data-lang-key="play_again_button">Nochmal spielen</button>
             </div>
@@ -435,11 +437,9 @@
 
     <script>
     document.addEventListener('DOMContentLoaded', () => {
-        // --- NEUE LOGIK FÜR SPLASH SCREEN ---
         const splashScreen = document.getElementById('splash-screen');
         const startScreen = document.getElementById('start-screen');
 
-        // Nach 2 Sekunden den Splash Screen ausblenden und den Startbildschirm einblenden
         setTimeout(() => {
             splashScreen.classList.add('hidden');
             startScreen.classList.add('visible');
@@ -464,14 +464,13 @@
         const nextRoundBtn = document.getElementById('next-round-btn');
         const finalSummaryModal = document.getElementById('final-summary-modal');
         const finalResultsContainer = document.getElementById('final-results-container');
-        const timeGainEl = document.getElementById('time-gain');
         const playAgainBtn = document.getElementById('play-again-btn');
 
         // --- Localization ---
         const translations = {
             de: {
                 title: "5S Zahlenspiel",
-                start_intro: "Runde 1: Die Aufgabe ist, in 25 Sekunden die Zahlen 1-49 anzutippen. Runde 1 stellt die Ist-Situation dar, also einen unorganisierten Arbeitsplatz/ineffiziente Prozesse",
+                start_intro: "Tippe die Zahlen in der richtigen Reihenfolge an. Jede Runde ist eine 25-Sekunden-Schicht.",
                 start_button: "Spiel starten",
                 round_info: "Runde {round} von 4",
                 next_number_label: "Nächste Zahl",
@@ -479,7 +478,6 @@
                 highest_number_label: "Erreichte Zahl:",
                 next_round_button: "Nächste Runde",
                 final_summary_title: "Gesamtübersicht",
-                time_gain_label: "Zeitgewinn (R2 → R4):",
                 final_message: "Gut gemacht! Durch die Anwendung der 5S-Prinzipien wurde der Prozess deutlich effizienter.",
                 play_again_button: "Nochmal spielen",
                 pause_label: "Pause",
@@ -489,8 +487,7 @@
                     "Runde 2: Aussortiert! Unnötiges wurde entfernt. Spürst du den Unterschied? Weiter gehts noch organisierter mit dem Grid", // Runde 2
                     "Runde 3: Geordnet! Alles hat seinen Platz. Die Suche wird einfacher. Wir könnens aber noch weiter ordnen", // Runde 3
                     "Runde 4: Standardisiert! Ein klarer, einfacher Prozess. Effizienz pur." // Runde 4
-                ],
-                final_round_result: "Runde {round}: {highest} Zahlen"
+                ]
             },
             en: {
                 title: "5S Number Game",
@@ -502,7 +499,6 @@
                 highest_number_label: "Highest Number:",
                 next_round_button: "Next Round",
                 final_summary_title: "Final Summary",
-                time_gain_label: "Time Gain (R2 → R4):",
                 final_message: "Well done! By applying the 5S principles, the process became much more efficient.",
                 play_again_button: "Play Again",
                 pause_label: "Pause",
@@ -512,8 +508,7 @@
                     "Round 2: Sorted out! Unnecessary items have been removed. Feel the difference?",
                     "Round 3: Set in order! Everything has its place. Searching becomes easier.",
                     "Round 4: Standardized! A clear, simple process. Pure efficiency."
-                ],
-                final_round_result: "Round {round}: {highest} numbers"
+                ]
             }
         };
         
@@ -546,7 +541,6 @@
 
         // --- Game Logic ---
 
-        // Seedable PRNG for deterministic layouts
         function mulberry32(a) {
             return function() {
               let t = a += 0x6D2B79F5;
@@ -561,7 +555,7 @@
             config.lang = params.get('lang') === 'en' ? 'en' : 'de';
             config.vibration = params.get('vibration') !== '0';
             config.colorblind = params.get('colorblind') === '1';
-            config.seed = parseInt(params.get('seed'), 10) || 12345; // Default seed for consistency
+            config.seed = parseInt(params.get('seed'), 10) || 12345;
             config.sound = params.get('sound') !== '0';
             config.fontScale = parseFloat(params.get('fontScale')) || 1.0;
             document.documentElement.style.setProperty('--font-scale', config.fontScale);
@@ -582,7 +576,6 @@
             translateUI();
             prng = mulberry32(config.seed);
             
-            // Pre-generate the master layout for all rounds
             generateMasterLayout();
 
             startGameBtn.onclick = () => {
@@ -594,7 +587,6 @@
             pauseBtn.onclick = togglePause;
             restartBtn.onclick = () => {
                 if (confirm('Spiel wirklich neu starten?')) {
-                    // Re-initialize with the same seed to ensure consistency
                     prng = mulberry32(config.seed);
                     generateMasterLayout();
                     resetGame();
@@ -616,7 +608,6 @@
 
             playAgainBtn.onclick = () => {
                 finalSummaryModal.classList.remove('visible');
-                // Re-initialize with the same seed to ensure consistency
                 prng = mulberry32(config.seed);
                 generateMasterLayout();
                 resetGame();
@@ -631,7 +622,6 @@
         }
 
         function startRound() {
-            // Reset state for the new round
             state.targetNumber = 1;
             state.timeLeft = config.roundDuration;
             state.isPaused = false;
@@ -644,15 +634,18 @@
         }
 
         function endRound() {
-            clearInterval(state.timerInterval);
+            if (state.isFinished) return;
+            state.isFinished = true;
+
+            cancelAnimationFrame(state.timerInterval);
             state.timerInterval = null;
             
             const highestNumberFound = state.targetNumber - 1;
             results.push({
                 highest: highestNumberFound,
+                timeLeft: state.timeLeft
             });
 
-            // Show summary modal
             resultHighestNumberInput.value = highestNumberFound;
             roundMessageEl.textContent = translations[config.lang].round_messages[state.currentRound];
             
@@ -662,40 +655,60 @@
                 nextRoundBtn.textContent = translations[config.lang].next_round_button;
             }
 
-            setTimeout(() => roundSummaryModal.classList.add('visible'), 500);
+            setTimeout(() => {
+                roundSummaryModal.classList.add('visible');
+                state.isFinished = false;
+            }, 500);
         }
         
         function showFinalSummary() {
             finalResultsContainer.innerHTML = '';
+            
+            // Runden-Ergebnisse mit Restzeit anzeigen
             results.forEach((res, index) => {
                 const resultLine = document.createElement('div');
                 resultLine.className = 'result-item';
+                const timeLeftText = res.timeLeft > 0 ? `<span class="round-time">(${(res.timeLeft / 1000).toFixed(1)}s übrig)</span>` : '';
                 resultLine.innerHTML = `
-                    <span>${translations[config.lang].final_round_result.replace('{round}', index + 1).replace('{highest}', res.highest)}</span>
+                    <span>
+                        Runde ${index + 1}: <strong>${res.highest} Zahlen</strong>
+                    </span>
+                    ${timeLeftText}
                 `;
                 finalResultsContainer.appendChild(resultLine);
             });
 
-            // Calculate time gain
-            const scoreR2 = results[1] ? results[1].highest : 0;
-            const scoreR4 = results[3] ? results[3].highest : 0;
-            let gain = 0;
-            if (scoreR2 > 0 && scoreR4 >= scoreR2) {
-                gain = ((scoreR4 - scoreR2) / scoreR2) * 100;
+            finalResultsContainer.innerHTML += `<hr style="border-color: #444; margin: 15px 0;">`;
+
+            // Verbesserungen berechnen und anzeigen
+            for (let i = 0; i < results.length - 1; i++) {
+                const score1 = results[i].highest;
+                const score2 = results[i + 1].highest;
+                let improvement = 0;
+                if (score1 > 0 && score2 >= score1) {
+                    improvement = ((score2 - score1) / score1) * 100;
+                }
+
+                const improvementLine = document.createElement('div');
+                improvementLine.className = 'result-item';
+                improvementLine.innerHTML = `
+                    <span>Verbesserung R${i + 1} → R${i + 2}:</span>
+                    <strong>+${improvement.toFixed(1)}%</strong>
+                `;
+                finalResultsContainer.appendChild(improvementLine);
             }
-            timeGainEl.textContent = `${gain.toFixed(1)}%`;
 
             finalSummaryModal.classList.add('visible');
         }
 
         function startTimer() {
             let startTime = Date.now();
-            let accumulatedTime = config.roundDuration - state.timeLeft; // Resume from where it was
+            let accumulatedTime = config.roundDuration - state.timeLeft; 
         
-            cancelAnimationFrame(state.timerInterval); // Cancel any existing timer
+            cancelAnimationFrame(state.timerInterval); 
 
             const tick = () => {
-                if (state.isPaused) return;
+                if (state.isPaused || state.isFinished) return;
 
                 const now = Date.now();
                 const elapsed = now - startTime;
@@ -707,7 +720,7 @@
                 if (state.timeLeft <= 0) {
                     state.timeLeft = 0;
                     timerEl.textContent = '0.0';
-                    updateUI(); // Final UI update
+                    updateUI();
                     endRound();
                 } else {
                     timerEl.textContent = (state.timeLeft / 1000).toFixed(1);
@@ -717,7 +730,6 @@
         
             state.timerInterval = requestAnimationFrame(tick);
         }
-
 
         function togglePause() {
             state.isPaused = !state.isPaused;
@@ -730,9 +742,8 @@
             }
         }
 
-
         function handleTap(e) {
-            if (state.isPaused || state.timeLeft <= 0) return;
+            if (state.isPaused || state.isFinished || state.timeLeft <= 0) return;
 
             const now = Date.now();
             if (now - state.lastTapTime < config.debounceTime) return;
@@ -743,17 +754,15 @@
 
             const value = parseInt(tile.dataset.value, 10);
             if (value === state.targetNumber) {
-                // Correct tap
                 tile.classList.add('found');
                 vibrate(20);
                 state.targetNumber++;
                 updateUI();
                 const maxNumber = [99, 49, 49, 49][state.currentRound];
                 if (state.targetNumber > maxNumber) {
-                    // All numbers found, but timer continues
+                    endRound();
                 }
             } else {
-                // Incorrect tap
                 tile.classList.add('error');
                 setTimeout(() => tile.classList.remove('error'), 300);
                 vibrate([60]);
