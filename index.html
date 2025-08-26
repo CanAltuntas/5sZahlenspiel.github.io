@@ -361,8 +361,14 @@
             font-size: 1.1em;
             font-weight: 700;
             cursor: pointer;
-            margin-top: 20px;
+            margin-top: 10px;
             width: 100%;
+        }
+
+        .modal-button.gray {
+            background-color: #6c757d;
+            margin-top: 20px;
+            margin-bottom: 0;
         }
         
         #language-selection-screen .modal-content,
@@ -447,6 +453,7 @@
                     <input type="number" id="result-highest-number" class="result-input" min="0">
                 </div>
                 <p id="round-message" style="font-style: italic; opacity: 0.9;"></p>
+                <button id="replay-round-btn" class="modal-button gray" data-lang-key="replay_round_button"></button>
                 <button id="next-round-btn" class="modal-button" data-lang-key="next_round_button">Nächste Runde</button>
             </div>
         </div>
@@ -455,7 +462,7 @@
             <div class="modal-content">
                 <h2 data-lang-key="final_summary_title">Gesamtübersicht</h2>
                 <div id="final-results-container"></div>
-                <p data-lang-key="final_message" style="margin-top: 20px;">Gut gemacht! Durch die Anwendung der 5S-Prinzipien wurde der Prozess deutlich effizienter.</p>
+                <p data-lang-key="final_message" style="margin-top: 20px;"></p>
                 <button id="play-again-btn" class="modal-button" data-lang-key="play_again_button">Nochmal spielen</button>
             </div>
         </div>
@@ -496,6 +503,7 @@
         const resultHighestNumberInput = document.getElementById('result-highest-number');
         const roundMessageEl = document.getElementById('round-message');
         const nextRoundBtn = document.getElementById('next-round-btn');
+        const replayRoundBtn = document.getElementById('replay-round-btn'); // Neuer Button
         const finalSummaryModal = document.getElementById('final-summary-modal');
         const finalResultsContainer = document.getElementById('final-results-container');
         const playAgainBtn = document.getElementById('play-again-btn');
@@ -511,6 +519,7 @@
                 round_summary_title: "Runden-Statistik",
                 highest_number_label: "Erreichte Zahl:",
                 next_round_button: "Nächste Runde",
+                replay_round_button: "Runde erneut spielen", // NEU
                 final_summary_title: "Gesamtübersicht",
                 final_message: "Gut gemacht! Durch die Anwendung der 5S-Prinzipien wurde der Prozess deutlich effizienter.",
                 play_again_button: "Nochmal spielen",
@@ -537,6 +546,7 @@
                 round_summary_title: "Statistiques du tour",
                 highest_number_label: "Nombre atteint :",
                 next_round_button: "Tour suivant",
+                replay_round_button: "Recommencer le tour", // NEU
                 final_summary_title: "Aperçu général",
                 final_message: "Bravo ! L'application des principes 5S a permis d'améliorer considérablement l'efficacité du processus.",
                 play_again_button: "Rejouer",
@@ -660,6 +670,13 @@
                 } else {
                     showFinalSummary();
                 }
+            };
+            
+            replayRoundBtn.onclick = () => {
+                roundSummaryModal.classList.remove('visible');
+                results.pop(); // Entfernt das Ergebnis des letzten Versuchs
+                // state.currentRound wird NICHT erhöht
+                startRound(); // Startet dieselbe Runde erneut
             };
 
             playAgainBtn.onclick = () => {
