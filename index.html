@@ -365,16 +365,19 @@
             width: 100%;
         }
         
-        #start-screen {
+        #language-selection-screen .modal-content,
+        #game-start-screen .modal-content {
+            display: flex;
             flex-direction: column;
+            gap: 15px;
         }
-
-        #start-screen h1 {
+        
+        #game-start-screen h1 {
             color: var(--primary-color);
         }
         
-        #start-screen p {
-            margin-bottom: 30px;
+        #game-start-screen p {
+            margin-bottom: 15px;
         }
 
     </style>
@@ -385,19 +388,27 @@
     </div>
 
     <div id="app">
-        <div id="start-screen" class="modal-overlay">
-            <div class="modal-content">
-                <h1 data-lang-key="title">5S Zahlenspiel</h1>
-                <p data-lang-key="start_intro">Tippe die Zahlen 1-49 in der richtigen Reihenfolge an. Jede Runde dauert 25-Sekunden.</p>
-                <button id="start-game-btn" class="modal-button" data-lang-key="start_button">Spiel starten</button>
+        <div id="language-selection-screen" class="modal-overlay">
+             <div class="modal-content">
+                <button id="start-de-btn" class="modal-button">Spielen</button>
+                <button id="start-fr-btn" class="modal-button">Jouer</button>
             </div>
         </div>
+
+        <div id="game-start-screen" class="modal-overlay">
+            <div class="modal-content">
+                <h1 id="start-title"></h1>
+                <p id="start-intro"></p>
+                <button id="start-game-btn" class="modal-button"></button>
+            </div>
+        </div>
+
 
         <header class="header">
             <div class="header-main">
                 <div class="title-container">
                     <img id="header-logo" src="assets/Avosano_Begleitlogo_walk.jpg" alt="Logo">
-                    <h1>5S Zahlenspiel</h1>
+                    <h1 data-lang-key="title">5S Zahlenspiel</h1>
                 </div>
                 <div id="timer" class="timer">25.0</div>
             </div>
@@ -453,12 +464,12 @@
     <script>
     document.addEventListener('DOMContentLoaded', () => {
         const splashScreen = document.getElementById('splash-screen');
-        const startScreen = document.getElementById('start-screen');
-
-        // Logo für 4 Sekunden anzeigen
+        const languageSelectionScreen = document.getElementById('language-selection-screen');
+        const gameStartScreen = document.getElementById('game-start-screen');
+        
         setTimeout(() => {
             splashScreen.classList.add('hidden');
-            startScreen.classList.add('visible');
+            languageSelectionScreen.classList.add('visible');
         }, 4000);
 
 
@@ -473,7 +484,14 @@
         const progressBarEl = document.getElementById('progress-bar');
         const pauseBtn = document.getElementById('pause-btn');
         const restartBtn = document.getElementById('restart-btn');
+        
+        const startDeBtn = document.getElementById('start-de-btn');
+        const startFrBtn = document.getElementById('start-fr-btn');
+
+        const startTitleEl = document.getElementById('start-title');
+        const startIntroEl = document.getElementById('start-intro');
         const startGameBtn = document.getElementById('start-game-btn');
+        
         const roundSummaryModal = document.getElementById('round-summary-modal');
         const resultHighestNumberInput = document.getElementById('result-highest-number');
         const roundMessageEl = document.getElementById('round-message');
@@ -486,7 +504,7 @@
         const translations = {
             de: {
                 title: "5S Zahlenspiel",
-                start_intro: "Ihr seht die Zahlen 1-99 zufällig verteilt auf dem Bildschirm. Die Aufgabe ist es, innerhalb von 25 Sekunden die Zahlen 1-49 der Reihe nach anzutippen. Runde 1 stellt die ist Situation eines unorganisierten Arbeitsplatzes/ineffizienten Prozesses dar",
+                start_intro: "Sie sehen die Zahlen 1-99 zufällig auf dem Bildschirm verteilt. Die Aufgabe ist es, die Zahlen 1-49 der Reihe nach innerhalb von 25 Sekunden anzutippen. Runde 1 steht für die Situation eines unorganisierten Arbeitsplatzes / ineffizienten Prozesses",
                 start_button: "Spiel starten",
                 round_info: "Runde {round} von 4",
                 next_number_label: "Nächste Zahl",
@@ -499,14 +517,42 @@
                 pause_label: "Pause",
                 resume_label: "Weiter",
                 round_messages: [
-                    "Runde 1: Ein unorganisierter Arbeitsplatz. Wir führen nun 5S ein und beginnen mit Aussortieren. Wie weit kommst du in Runde 2, wenn wir die Zahlen 50-99 entfernen? Es gelten die gleichen Regeln",
-                    "Runde 2: Aussortiert! Unnötiges wurde entfernt. Für Runde 3 haben wir Regale installiert und die Zahlen so in die Regale geordnet, dass die 1 unten links ist, die 2 in der mitte links, die 3 oben links etc. Wie viel effizienter werden wir dadurch?",
-                    "Runde 3: Geordnet! Alles hat seinen Platz. Für Runde 4 Standardisieren/reorganisieren wir das ganze und stellen die Zahlen in die richtige Reihenfolge. Jeder sollte nun die Aufgabe lösen können",
-                    "Runde 4: Standardisiert! Ein klarer, einfacher Prozess."
-                ]
+                    "Runde 1: Ein unorganisierter Arbeitsplatz. Wir führen nun 5S ein und starten mit Sortieren. Wie weit kommen Sie in Runde 2, wenn wir die Zahlen 50-99 entfernen? Es gelten dieselben Regeln",
+                    "Runde 2: Sortiert! Unnötiges wurde entfernt. Für Runde 3 haben wir Regale aufgestellt und die Zahlen so geordnet, dass die 1 unten links, die 2 in der Mitte links, die 3 oben links, usw. zu finden ist. Wie viel effizienter werden wir dadurch?",
+                    "Runde 3: Geordnet! Alles hat seinen Platz. Für Runde 4 standardisieren / reorganisieren wir und bringen die Zahlen in die richtige Reihenfolge. Nun sollte es für alle ein leichtes sein, das Rätsel zu lösen.",
+                    "Runde 4: Standardisiert! Ein klarer, einfacher Prozess. Effizienz pur."
+                ],
+                final_round_result: "Runde {round}: <strong>{highest} {plural_zahl}</strong>",
+                time_left_summary: "({time}s übrig)",
+                improvement_summary: "Verbesserung R{round1} → R{round2}:",
+                number_singular: "Zahl",
+                number_plural: "Zahlen"
             },
-            en: {
-                // ... (English translations if needed)
+            fr: {
+                title: "Jeu des chiffres 5S",
+                start_intro: "Vous voyez les chiffres 1 à 99 répartis au hasard sur l'écran. La tâche consiste à taper les chiffres 1 à 49 dans l'ordre en 25 secondes. Le tour 1 représente la situation d'un lieu de travail désorganisé/d'un processus inefficace",
+                start_button: "Démarrer le jeu",
+                round_info: "Tour {round} sur 4",
+                next_number_label: "Chiffre suivant",
+                round_summary_title: "Statistiques du tour",
+                highest_number_label: "Nombre atteint :",
+                next_round_button: "Tour suivant",
+                final_summary_title: "Aperçu général",
+                final_message: "Bravo ! L'application des principes 5S a permis d'améliorer considérablement l'efficacité du processus.",
+                play_again_button: "Rejouer",
+                pause_label: "Pause",
+                resume_label: "Continuer",
+                round_messages: [
+                    "Tour 1 : un lieu de travail désorganisé. Nous introduisons maintenant les 5S et commençons par trier. Jusqu'où irez-vous au tour 2 si nous supprimons les chiffres 50 à 99 ? Les mêmes règles s'appliquent",
+                    "Tour 2 : trié ! Le superflu a été éliminé. Pour le tour 3, nous avons installé des étagères et classé les chiffres de manière à ce que le 1 soit en bas à gauche, le 2 au milieu à gauche, le 3 en haut à gauche, etc. Dans quelle mesure cela nous rend-il plus efficaces ?",
+                    "Tour 3 : classé ! Tout est à sa place. Pour le tour 4, nous standardisons/réorganisons le tout et mettons les chiffres dans le bon ordre. Tout le monde devrait désormais pouvoir résoudre l'énigme.",
+                    "Tour 4 : standardisé ! Un processus clair et simple."
+                ],
+                final_round_result: "Tour {round} : <strong>{highest} {plural_chiffre}</strong>",
+                time_left_summary: "({time}s restants)",
+                improvement_summary: "Amélioration T{round1} → T{round2}:",
+                number_singular: "chiffre",
+                number_plural: "chiffres"
             }
         };
         
@@ -550,7 +596,6 @@
 
         function parseUrlParams() {
             const params = new URLSearchParams(window.location.search);
-            config.lang = params.get('lang') === 'en' ? 'en' : 'de';
             config.vibration = params.get('vibration') !== '0';
             config.colorblind = params.get('colorblind') === '1';
             config.seed = parseInt(params.get('seed'), 10) || 12345;
@@ -563,21 +608,37 @@
             const t = translations[config.lang];
             document.querySelectorAll('[data-lang-key]').forEach(el => {
                 const key = el.dataset.langKey;
-                if (t[key]) {
+                if (t && t[key]) {
                     el.textContent = t[key];
                 }
             });
         }
         
+        function selectLanguage(lang) {
+            config.lang = lang;
+            const t = translations[lang];
+
+            translateUI();
+
+            startTitleEl.textContent = t.title;
+            startIntroEl.textContent = t.start_intro;
+            startGameBtn.textContent = t.start_button;
+
+            languageSelectionScreen.classList.remove('visible');
+            gameStartScreen.classList.add('visible');
+        }
+
         function initGame() {
             parseUrlParams();
-            translateUI();
             prng = mulberry32(config.seed);
             
             generateMasterLayout();
+            
+            startDeBtn.onclick = () => selectLanguage('de');
+            startFrBtn.onclick = () => selectLanguage('fr');
 
             startGameBtn.onclick = () => {
-                startScreen.classList.remove('visible');
+                gameStartScreen.classList.remove('visible');
                 resetGame();
                 startRound();
             };
@@ -601,7 +662,6 @@
                 }
             };
 
-            // "Nochmal spielen" lädt die Seite komplett neu
             playAgainBtn.onclick = () => {
                 window.location.reload();
             }
@@ -642,7 +702,7 @@
             roundMessageEl.textContent = translations[config.lang].round_messages[state.currentRound];
             
             if (state.currentRound === 3) {
-                nextRoundBtn.textContent = "Ergebnisse anzeigen";
+                nextRoundBtn.textContent = translations[config.lang].final_summary_title;
             } else {
                 nextRoundBtn.textContent = translations[config.lang].next_round_button;
             }
@@ -655,16 +715,27 @@
         
         function showFinalSummary() {
             finalResultsContainer.innerHTML = '';
-            
-            // Runden-Ergebnisse mit Restzeit anzeigen
+            const t = translations[config.lang];
+
             results.forEach((res, index) => {
                 const resultLine = document.createElement('div');
                 resultLine.className = 'result-item';
-                const timeLeftText = res.timeLeft > 0 ? `<span class="round-time">(${(res.timeLeft / 1000).toFixed(1)}s übrig)</span>` : '';
+                
+                const timeLeftText = res.timeLeft > 0 
+                    ? `<span class="round-time">${t.time_left_summary.replace('{time}', (res.timeLeft / 1000).toFixed(1))}</span>` 
+                    : '';
+                
+                const pluralKey = res.highest === 1 ? 'number_singular' : 'number_plural';
+                const numberText = t[pluralKey] || (res.highest === 1 ? 'Zahl' : 'Zahlen');
+
+                let roundText = t.final_round_result || "Runde {round}: <strong>{highest} {plural_zahl}</strong>";
+                roundText = roundText.replace('{round}', index + 1)
+                                     .replace('{highest}', res.highest)
+                                     .replace('{plural_zahl}', numberText)
+                                     .replace('{plural_chiffre}', numberText);
+                
                 resultLine.innerHTML = `
-                    <span>
-                        Runde ${index + 1}: <strong>${res.highest} Zahlen</strong>
-                    </span>
+                    <span>${roundText}</span>
                     ${timeLeftText}
                 `;
                 finalResultsContainer.appendChild(resultLine);
@@ -672,7 +743,6 @@
 
             finalResultsContainer.innerHTML += `<hr style="border-color: #444; margin: 15px 0;">`;
 
-            // Verbesserungen berechnen und anzeigen
             for (let i = 0; i < results.length - 1; i++) {
                 const score1 = results[i].highest;
                 const score2 = results[i + 1].highest;
@@ -683,8 +753,11 @@
 
                 const improvementLine = document.createElement('div');
                 improvementLine.className = 'result-item';
+                let improvementText = t.improvement_summary || "Verbesserung R{round1} → R{round2}:";
+                improvementText = improvementText.replace('{round1}', i + 1).replace('{round2}', i + 2);
+                
                 improvementLine.innerHTML = `
-                    <span>Verbesserung R${i + 1} → R${i + 2}:</span>
+                    <span>${improvementText}</span>
                     <strong>+${improvement.toFixed(1)}%</strong>
                 `;
                 finalResultsContainer.appendChild(improvementLine);
@@ -726,7 +799,7 @@
         function togglePause() {
             state.isPaused = !state.isPaused;
             pauseBtn.textContent = state.isPaused ? '▶' : '❚❚';
-            pauseBtn.setAttribute('aria-label', state.isPaused ? translations[config.lang].pause_label : translations[config.lang].resume_label);
+            pauseBtn.setAttribute('aria-label', translations[config.lang][state.isPaused ? 'resume_label' : 'pause_label']);
             if (!state.isPaused) {
                 startTimer();
             } else {
