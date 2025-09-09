@@ -85,6 +85,15 @@
             flex-direction: column;
             justify-content: space-between;
         }
+        
+        .header, .board-container, .footer {
+            user-select: none;
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            -webkit-touch-callout: none;
+        }
+
 
         /* --- UI-Komponenten: Header, Footer, Board --- */
         .header, .footer {
@@ -226,10 +235,9 @@
             align-items: center;
             color: var(--text-color);
             cursor: pointer;
-            user-select: none;
             padding: 5px;
             box-sizing: border-box;
-            transition: transform 0.1s ease-out, opacity 0.2s;
+            transition: transform 0.1s ease-out, opacity 0.2s, color 0.1s;
             transform-origin: center center;
         }
         
@@ -242,15 +250,15 @@
         }
 
         @keyframes found-pop {
-            0% { transform: translate(-50%, -50%) scale(1) rotate(var(--rotation)); opacity: 1; }
-            50% { transform: translate(-50%, -50%) scale(1.3) rotate(var(--rotation)); opacity: 0.5; }
+            0% { transform: translate(-50%, -50%) scale(1) rotate(var(--rotation)); opacity: 1; color: var(--accent-color); }
+            50% { transform: translate(-50%, -50%) scale(1.3) rotate(var(--rotation)); opacity: 0.5; color: var(--accent-color); }
             100% { transform: translate(-50%, -50%) scale(0) rotate(var(--rotation)); opacity: 0; }
         }
 
         @keyframes error-shake {
-            0%, 100% { transform: translate(-50%, -50%) translateX(0) rotate(var(--rotation)); }
-            20%, 60% { transform: translate(-50%, -50%) translateX(-5px) rotate(var(--rotation)); }
-            40%, 80% { transform: translate(-50%, -50%) translateX(5px) rotate(var(--rotation)); }
+            0%, 100% { transform: translate(-50%, -50%) translateX(0) rotate(var(--rotation)); color: var(--text-color); }
+            20%, 60% { transform: translate(-50%, -50%) translateX(-5px) rotate(var(--rotation)); color: var(--error-color); }
+            40%, 80% { transform: translate(-50%, -50%) translateX(5px) rotate(var(--rotation)); color: var(--error-color); }
         }
         
         .font-oswald { font-family: 'Oswald', sans-serif; }
@@ -386,6 +394,24 @@
             margin-bottom: 15px;
         }
 
+        #countdown-overlay {
+            z-index: 150;
+            background-color: rgba(0, 0, 0, 0.7);
+        }
+
+        #countdown-timer {
+            font-size: 10em;
+            font-weight: 700;
+            color: var(--text-color);
+            animation: countdown-pop 1s infinite;
+        }
+
+        @keyframes countdown-pop {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.2); }
+            100% { transform: scale(1); }
+        }
+
     </style>
 </head>
 <body>
@@ -407,6 +433,10 @@
                 <p id="start-intro"></p>
                 <button id="start-game-btn" class="modal-button"></button>
             </div>
+        </div>
+
+        <div id="countdown-overlay" class="modal-overlay">
+            <div id="countdown-timer">3</div>
         </div>
 
 
@@ -462,7 +492,7 @@
             <div class="modal-content">
                 <h2 data-lang-key="final_summary_title">Gesamtübersicht</h2>
                 <div id="final-results-container"></div>
-                <p data-lang-key="final_message" style="margin-top: 20px;"></p>
+                <p id="final-message" data-lang-key="final_message" style="margin-top: 20px;"></p>
                 <button id="play-again-btn" class="modal-button" data-lang-key="play_again_button">Nochmal spielen</button>
             </div>
         </div>
@@ -481,6 +511,8 @@
 
 
         // --- DOM Element References ---
+        const countdownOverlay = document.getElementById('countdown-overlay');
+        const countdownTimerEl = document.getElementById('countdown-timer');
         const app = document.getElementById('app');
         const board = document.getElementById('board');
         const boardContainer = document.querySelector('.board-container');
@@ -503,7 +535,7 @@
         const resultHighestNumberInput = document.getElementById('result-highest-number');
         const roundMessageEl = document.getElementById('round-message');
         const nextRoundBtn = document.getElementById('next-round-btn');
-        const replayRoundBtn = document.getElementById('replay-round-btn'); // Neuer Button
+        const replayRoundBtn = document.getElementById('replay-round-btn');
         const finalSummaryModal = document.getElementById('final-summary-modal');
         const finalResultsContainer = document.getElementById('final-results-container');
         const playAgainBtn = document.getElementById('play-again-btn');
@@ -511,58 +543,58 @@
         // --- Localization ---
         const translations = {
             de: {
-                title: "5S Zahlenspiel",
-                start_intro: "Sie sehen die Zahlen 1-99 zufällig auf dem Bildschirm verteilt. Die Aufgabe ist es, die Zahlen 1-49 der Reihe nach innerhalb von 25 Sekunden anzutippen. Runde 1 steht für die Situation eines unorganisierten Arbeitsplatzes / ineffizienten Prozesses",
-                start_button: "Spiel starten",
-                round_info: "Runde {round} von 4",
-                next_number_label: "Nächste Zahl",
-                round_summary_title: "Runden-Statistik",
-                highest_number_label: "Erreichte Zahl:",
-                next_round_button: "Nächste Runde",
-                replay_round_button: "Runde erneut spielen", // NEU
-                final_summary_title: "Gesamtübersicht",
-                final_message: "Gut gemacht! Durch die Anwendung der 5S-Prinzipien wurde der Prozess deutlich effizienter.",
-                play_again_button: "Nochmal spielen",
-                pause_label: "Pause",
-                resume_label: "Weiter",
+                title: '5S Zahlenspiel',
+                start_intro: 'Im folgenden Spiel siehst du die Zahlen 1-99 zufällig auf dem Bildschirm verteilt. Die Aufgabe ist es, die Zahlen 1-49 der Reihe nach innerhalb von 25 Sekunden anzutippen. Runde 1 beginnt nach dem Countdown und steht symbolisch für die Situation eines unorganisierten Arbeitsplatzes / ineffizienten Prozesses.',
+                start_button: 'Spiel starten',
+                round_info: 'Runde {round} von 4',
+                next_number_label: 'Nächste Zahl',
+                round_summary_title: 'Runden-Statistik',
+                highest_number_label: 'Erreichte Zahl:',
+                next_round_button: 'Nächste Runde',
+                replay_round_button: 'Runde erneut spielen',
+                final_summary_title: 'Gesamtübersicht',
+                final_message: `Perfekt! Du hast den Prozess gemeistert. Jetzt heisst es nur noch Shitsuke - Selbstdisziplin. Wir wollen uns ständig verbessern und die Ordnung die wir erschaffen haben auch beibehalten. Somit haben wir 5S richtig angewendet und sehen in der Auswertung wie effizienter wir von Runde zu Runde geworden sind.`,
+                play_again_button: 'Nochmal spielen',
+                pause_label: 'Pause',
+                resume_label: 'Weiter',
                 round_messages: [
-                    "Runde 1: Ein unorganisierter Arbeitsplatz. Wir führen nun 5S ein und starten mit Sortieren. Wie weit kommen Sie in Runde 2, wenn wir die Zahlen 50-99 entfernen? Es gelten dieselben Regeln",
-                    "Runde 2: Sortiert! Unnötiges wurde entfernt. Für Runde 3 haben wir Regale aufgestellt und die Zahlen so geordnet, dass die 1 unten links, die 2 in der Mitte links, die 3 oben links, usw. zu finden ist. Wie viel effizienter werden wir dadurch?",
-                    "Runde 3: Geordnet! Alles hat seinen Platz. Für Runde 4 standardisieren / reorganisieren wir und bringen die Zahlen in die richtige Reihenfolge. Nun sollte es für alle ein leichtes sein, das Rätsel zu lösen.",
-                    "Runde 4: Standardisiert! Ein klarer, einfacher Prozess. Effizienz pur."
+                    `Wir wenden nun 5S an um diesen Prozess zu optimieren / unseren Arbeitsplatz zu organisieren. Wir beginnen mit dem ersten S Seiri - Sortiere aus. Wir sortieren alle Zahlen aus, die wir nicht benötigen. Somit fallen 50-99 weg und unser Arbeitsplatz wird übersichtlicher. Versuchs nochmal und am Ende sehen wir, obs eine Effizienzsteigerung gab. Es gelten wieder die gleichen Regeln.`,
+                    `Es ist nur noch das nötige da. Mit dem zweiten 5S Prinzip Seiton - Stelle ordentlich hin, stellen wir Regale für die Zahlen auf und ordnen sie wie folgt ein; Die 1 kommt unten links hinein, die 2 in die Mitte links, die 3 oben links, die 4 unten mitte usw. Starte eine erneute Runde und schau, ob du effizienter wirst.`,
+                    `In der nächsten Runde wenden wir noch die Prinzipien 3 & 4 von 5S an: Seiso - Säubere und Seiketsu - Standardisiere. Wir reorganisieren das ganze damit es so einfach wie möglich ist zu arbeiten. Versuchs nochmal und schau wie effizienter du wirst.`,
+                    `Perfekt! Du hast den Prozess gemeistert. Jetzt heisst es nur noch Shitsuke - Selbstdisziplin. Wir wollen uns ständig verbessern und die Ordnung die wir erschaffen haben auch beibehalten. Somit haben wir 5S richtig angewendet und sehen in der Auswertung wie effizienter wir von Runde zu Runde geworden sind.`
                 ],
-                final_round_result: "Runde {round}: <strong>{highest} {plural_zahl}</strong>",
-                time_left_summary: "({time}s übrig)",
-                improvement_summary: "Verbesserung R{round1} → R{round2}:",
-                number_singular: "Zahl",
-                number_plural: "Zahlen"
+                final_round_result: 'Runde {round}: <strong>{highest} {plural_zahl}</strong>',
+                time_left_summary: '({time}s übrig)',
+                improvement_summary: 'Verbesserung R{round1} → R{round2}:',
+                number_singular: 'Zahl',
+                number_plural: 'Zahlen'
             },
             fr: {
-                title: "Jeu des chiffres 5S",
-                start_intro: "Vous voyez les chiffres 1 à 99 répartis au hasard sur l'écran. La tâche consiste à taper les chiffres 1 à 49 dans l'ordre en 25 secondes. Le tour 1 représente la situation d'un lieu de travail désorganisé/d'un processus inefficace",
-                start_button: "Démarrer le jeu",
-                round_info: "Tour {round} sur 4",
-                next_number_label: "Chiffre suivant",
-                round_summary_title: "Statistiques du tour",
-                highest_number_label: "Nombre atteint :",
-                next_round_button: "Tour suivant",
-                replay_round_button: "Recommencer le tour", // NEU
-                final_summary_title: "Aperçu général",
-                final_message: "Bravo ! L'application des principes 5S a permis d'améliorer considérablement l'efficacité du processus.",
-                play_again_button: "Rejouer",
-                pause_label: "Pause",
-                resume_label: "Continuer",
+                title: 'Jeu des chiffres 5S',
+                start_intro: `Dans le jeu suivant, tu vois les chiffres de 1 à 99 répartis au hasard sur l'écran. La tâche consiste à taper les chiffres de 1 à 49 dans l'ordre en 25 secondes. Le tour 1 commence après le compte à rebours et symbolise la situation d'un lieu de travail désorganisé ou d'un processus inefficace.`,
+                start_button: 'Démarrer le jeu',
+                round_info: 'Tour {round} sur 4',
+                next_number_label: 'Chiffre suivant',
+                round_summary_title: 'Statistiques du tour',
+                highest_number_label: 'Nombre atteint :',
+                next_round_button: 'Tour suivant',
+                replay_round_button: 'Recommencer le tour',
+                final_summary_title: 'Aperçu général',
+                final_message: `Parfait ! Tu as maîtrisé le processus. Maintenant, il ne reste plus que Shitsuke - Maintenir la discipline. Nous voulons nous améliorer constamment et conserver l'ordre que nous avons créé. Ainsi, nous avons correctement appliqué les 5S et nous verrons dans l'évaluation à quel point nous sommes devenus plus efficaces de tour en tour.`,
+                play_again_button: 'Rejouer',
+                pause_label: 'Pause',
+                resume_label: 'Continuer',
                 round_messages: [
-                    "Tour 1 : un lieu de travail désorganisé. Nous introduisons maintenant les 5S et commençons par trier. Jusqu'où irez-vous au tour 2 si nous supprimons les chiffres 50 à 99 ? Les mêmes règles s'appliquent",
-                    "Tour 2 : trié ! Le superflu a été éliminé. Pour le tour 3, nous avons installé des étagères et classé les chiffres de manière à ce que le 1 soit en bas à gauche, le 2 au milieu à gauche, le 3 en haut à gauche, etc. Dans quelle mesure cela nous rend-il plus efficaces ?",
-                    "Tour 3 : classé ! Tout est à sa place. Pour le tour 4, nous standardisons/réorganisons le tout et mettons les chiffres dans le bon ordre. Tout le monde devrait désormais pouvoir résoudre l'énigme.",
-                    "Tour 4 : standardisé ! Un processus clair et simple."
+                    `Nous allons maintenant appliquer les 5S pour optimiser ce processus et organiser notre poste de travail. Nous commençons par le premier S, Seiri - Trier. Nous trions tous les chiffres dont nous n'avons pas besoin. Ainsi, les chiffres 50-99 sont éliminés et notre poste de travail devient plus clair. Essaie à nouveau et nous verrons s'il y a eu un gain d'efficacité. Les mêmes règles s'appliquent.`,
+                    `Il ne reste que le nécessaire. Avec le deuxième principe 5S, Seiton - Ranger, nous installons des étagères pour les chiffres et les classons comme suit : le 1 va en bas à gauche, le 2 au milieu à gauche, le 3 en haut à gauche, le 4 en bas au milieu, etc. Lance un nouveau tour et vois si tu deviens plus efficace.`,
+                    `Au prochain tour, nous appliquerons les principes 3 & 4 des 5S : Seiso - Nettoyer et Seiketsu - Standardiser. Nous réorganisons le tout pour qu'il soit aussi simple que possible de travailler. Essaie à nouveau et vois à quel point tu deviens plus efficace.`,
+                    `Parfait ! Tu as maîtrisé le processus. Maintenant, il ne reste plus que Shitsuke - Maintenir la discipline. Nous voulons nous améliorer constamment et conserver l'ordre que nous avons créé. Ainsi, nous avons correctement appliqué les 5S et nous verrons dans l'évaluation à quel point nous sommes devenus plus efficaces de tour en tour.`
                 ],
-                final_round_result: "Tour {round} : <strong>{highest} {plural_chiffre}</strong>",
-                time_left_summary: "({time}s restants)",
-                improvement_summary: "Amélioration T{round1} → T{round2}:",
-                number_singular: "chiffre",
-                number_plural: "chiffres"
+                final_round_result: 'Tour {round} : <strong>{highest} {plural_chiffre}</strong>',
+                time_left_summary: '({time}s restants)',
+                improvement_summary: 'Amélioration T{round1} → T{round2}:',
+                number_singular: 'chiffre',
+                number_plural: 'chiffres'
             }
         };
         
@@ -575,7 +607,7 @@
             sound: true,
             fontScale: 1.0,
             roundDuration: 25000,
-            debounceTime: 200,
+            debounceTime: 100,
         };
 
         // --- Game State ---
@@ -671,12 +703,11 @@
                     showFinalSummary();
                 }
             };
-            
+
             replayRoundBtn.onclick = () => {
                 roundSummaryModal.classList.remove('visible');
-                results.pop(); // Entfernt das Ergebnis des letzten Versuchs
-                // state.currentRound wird NICHT erhöht
-                startRound(); // Startet dieselbe Runde erneut
+                results.pop();
+                startRound();
             };
 
             playAgainBtn.onclick = () => {
@@ -690,6 +721,23 @@
             state.isFinished = false;
         }
 
+        function showCountdownAndStart() {
+            let count = 3;
+            countdownTimerEl.textContent = count;
+            countdownOverlay.classList.add('visible');
+
+            const countdownInterval = setInterval(() => {
+                count--;
+                if (count > 0) {
+                    countdownTimerEl.textContent = count;
+                } else {
+                    clearInterval(countdownInterval);
+                    countdownOverlay.classList.remove('visible');
+                    startTimer();
+                }
+            }, 1000);
+        }
+
         function startRound() {
             state.targetNumber = 1;
             state.timeLeft = config.roundDuration;
@@ -699,7 +747,7 @@
             clearBoard();
             generateBoard();
             
-            startTimer();
+            showCountdownAndStart();
         }
 
         function endRound() {
