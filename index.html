@@ -5,9 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <title>5S Zahlenspiel</title>
+    <title>5S Number Game</title>
     
-    <link rel="manifest" href="data:application/json;base64,ew0KICAgICJuYW1lIjogIjVTIFphaGxlbnNwaWVsIiwNCiAgICAic2hvcnRfbmFtZSI6ICI1UyBHYW1lIiwNCiAgICAic3RhcnRfdXJsIjogIi4iLA0KICAgICJkaXNwbGF5IjogImZ1bGxzY3JlZW4iLA0KICAgICJvcmllbnRhdGlvbiI6ICJwb3J0cmFpdCIsDQogICAgImJhY2tncm91bmRfY29sb3IiOiAiIzEzMTYxOCIsDQogICAgInRoZW1lX2NvbG9yIjogIiMxMzE2MTgiLA0KICAgICJpY29ucyI6IFsNCiAgICAgICAgew0KICAgICAgICAgICAgInNyYyI6ICJkYXRhOmltYWdlL3N2Zyt4bWw7YmFzZTY0,UEhOamNtbHpkQzV5YjI5MFpXUWdZMnhoYzNNOUltVnpkR1U5SW1GMlpXNTBaV04wSWlCbWFXeHNjejBpYUhSMGNEb3ZMM2QzZHk1M015NXZjbWN2TWpBeU1TOHdZMnhoYzNNOU1TNHdJaUIyYVdWM1FtOTRQU0p3Y205a2RXTjBJajhpWFN3aVlYVjBhR1Z1ZEdsaGJpQjBiMnh2WjJ4aGNtZ3ViVzlpYVd4bE9pQjNhR2x1WjNWaFoyVnlYMkZ6WlhKcFlTSXNJaU1pUGp4MFpYaDBJSGc5SWpFd01DVWlpSUdacGJHdzlJbUpzWVdOcklpQXZQanh6WlhKMGFXWnBjeUlzSWlNaVBqeDBaWGgwSUhnOUlqRXdNQVlpSUdacGJHdzlJbUpzWVdOcklpQXZQandpWlhoaGJYQnNaVzVqYjJSbElpQm9aV2xuYUhROUltaDBkSEE2THk5M2QzY3VZbTlpYTNWbGJpNWpiMjB2Y0hKdVpYZHpQZz09IiwNCiAgICAgICAgICAgICJzaXplcyI6ICIxOTJ4MTkyIiwNCiAgICAgICAgICAgICJ0eXBlIjogImltYWdlL3N2Zyt4bWwiDQogICAgICAgIH0sDQogICAgICAgIHsNCiAgICAgICAgICAgICJzcmMiOiAiZGF0YTppbWFnZS9zdmcreG1sO2Jhc2U2NC,UEhOamNtbHpkQzV5YjI5MFpXUWdZMnhoYzNNOUltVnpkR1U5SW1GMlpXNTBaV04wSWlCbWFXeHNjejBpYUhSMGNEb3ZMM2QzZHk1M015NXZjbWN2TWpBeU1TOHdZMnhoYzNNOU1TNHdJaUIyYVdWM1FtOTRQU0p3Y205a2RXTjBJajhpWFN3aVlYVjBhR1Z1ZEdsaGJpQjBiMnh2WjJ4aGNtZ3ViVzlpYVd4bE9pQjNhR2x1WjNWaFoyVnlYMkZ6WlhKcFlTSXNJaU1pUGp4MFpYaDBJSGc5SWpFd01DVWlpSUdacGJHdzlJbUpzWVdOcklpQXZQanh6WlhKMGFXWnBjeUlzSWlNaVBqeDBaWGgwSUhnOUlqRXdNQVlpSUdacGJHdzlJbUpzWVdOcklpQXZQandpWlhoaGJYQnNaVzVqYjJSbElpQm9aV2xuYUhROUltaDBkSEE2THk5M2QzY3VZbTlpYTNWbGJpNWpiMjB2Y0hKdVpYZHpQZz09IiwNCiAgICAgICAgICAgICJzaXplcyI6ICI1MTJ4NTEyIiwNCiAgICAgICAgICAgICJ0eXBlIjogImltYWdlL3N2Zyt4bWwiDQogICAgICAgIH0NCiAgICBdDQp9">
+    <link rel="manifest" href="data:application/json;base64,ew0KICAgICJuYW1lIjogIjVTIFphaGxlbnNwaWVsIiwNCiAgICAic2hvcnRfbmFtZSI6ICI1UyBHYW1lIiwNCiAgICAic3RhcnRfdXJsIjogIi4iLA0KICAgICJkaXNwbGF5IjogImZ1bGxzY3JlZW4iLA0KICAgICJvcmllbnRhdGlvbiI6ICJwb3J0cmFpdCIsDQogICAgImJhY2tncm91bmRfY29sb3IiOiAiIzEzMTYxOCIsDQogICAgInRoZW1lX2NvbG9yIjogIiMxMzE2MTgiLA0KICAgICJpY29ucyI6IFsNCiAgICAgICAgew0KICAgICAgICAgICAgInNyYyI6ICJkYXRhOmltYWdlL3N2Zyt4bWw7YmFzZTY0,UEhOamNtbHpkQzV5YjI5MFpXUWdZMnhoYzNNOUltVnpkR1U5SW1GMlpXNTBaV04wSWlCbWFXeHNjejBpYUhSMGNEb3ZMM2QzZHk1M015NXZjbWN2TWpBeU1TOHdZMnhoYzNNOU1TNHdJaUIyYVdWM1FtOTRQU0p3Y205a2RXTjBJajhpWFN3aVlYVjBhR1Z1ZEdsaGJpQjBiMnh2WjJ4aGNtZ3ViVzlpYVd4bE9pQjNhR2x1WjNWaFoyVnlYMkZ6WlhKcFlTSXNJaU1pUGp4MFpYaDBJSGc5SWpFd01DVWlpSUdacGJHdzlJbUpzWVdOcklpQXZQanh6WlhKMGFXWnBjeUlzSWlNaVBqeDBaWGgwSUhnOUlqRXdNQVlpSUdacGJHdzlJbUpzWVdOcklpQXZQandpWlhoaGJYQnNaVzVqYjJSbElpQm9aV2xuYUhROUltaDBkSEE2THk5M2QzY3VZbTlpYTNWbGJpNWpiMjB2Y0hKdVpYZHpQZz09IiwNCiAgICAgICAgICAgICJzaXplcyI6ICIxOTJ4MTkyIiwNCiAgICAgICAgICAgICJ0eXBlIjogImltYWdlL3N2Zyt4bWwiDQogICAgICAgIH0sDQogICAgICAgIHsNCiAgICAgICAgICAgICJzcmMiOiAiZGF0YTppbWFnZS9zdmcreG1sO2Jhc2U2NC,UEhOamNtbHpkQzV5YjI5MFpXUWdZMnhoYzNNOUltVnpkR1U5SW1GMlpXNTBaV04wSWlCbWFXeHNjejBpYUhSMGNEb3ZMM2QzZHk1M015NXZjbWN2TWpBeU1TOHdZMnhoYzNNOU1TNHdJaUIyYVdWM1FtOTRQU0p3Y205a2RXTjBJajhpWFN3aVlYVjBhR1V1ZEdsaGJpQjBiMnh2WjJ4aGNtZ3ViVzlpYVd4bE9pQjNhR2x1WjNWaFoyVnlYMkZ6WlhKcFlTSXNJaU1pUGp4MFpYaDBJSGc5SWpFd01DVWlpSUdacGJHdzlJbUpzWVdOcklpQXZQanh6WlhKMGFXWnBjeUlzSWlNaVBqeDBaWGgwSUhnOUlqRXdNQVlpSUdacGJHdzlJbUpzWVdOcklpQXZQandpWlhoaGJYQnNaVzVqYjJSbElpQm9aV2xuYUhROUltaDBkSEE2THk5M2QzY3VZbTlpYTNWbGJpNWpiMjB2Y0hKdVpYZHpQZz09IiwNCiAgICAgICAgICAgICJzaXplcyI6ICI1MTJ4NTEyIiwNCiAgICAgICAgICAgICJ0eXBlIjogImltYWdlL3N2Zyt4bWwiDQogICAgICAgIH0NCiAgICBdDQp9">
 
     <style>
         /* --- Splash Screen Stil --- */
@@ -290,7 +290,37 @@
             right: 2px;
             font-size: 0.6em;
         }
+        
+        /* --- Stile für die Feuerwerk-Animation --- */
+        #fireworks-container {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 50;
+            overflow: hidden;
+        }
+        
+        .firework-particle {
+            position: absolute;
+            width: 5px;
+            height: 5px;
+            border-radius: 50%;
+        }
 
+        @keyframes fireworks-explode {
+            0% {
+                transform: translate(0, 0) scale(1.5);
+                opacity: 1;
+            }
+            100% {
+                transform: translate(var(--x), var(--y)) scale(0);
+                opacity: 0;
+            }
+        }
+        
         /* --- Modals / Overlays --- */
         .modal-overlay {
             position: fixed;
@@ -422,9 +452,10 @@
     <div id="app">
         <div id="language-selection-screen" class="modal-overlay">
              <div class="modal-content">
-                <button id="start-de-btn" class="modal-button">Spielen</button>
-                <button id="start-fr-btn" class="modal-button">Jouer</button>
-            </div>
+                 <button id="start-de-btn" class="modal-button">Spielen</button>
+                 <button id="start-en-btn" class="modal-button">Play</button>
+                 <button id="start-fr-btn" class="modal-button">Jouer</button>
+             </div>
         </div>
 
         <div id="game-start-screen" class="modal-overlay">
@@ -458,6 +489,7 @@
                 <div class="grid-cell"></div><div class="grid-cell"></div><div class="grid-cell"></div>
             </div>
             <div id="board" class="board"></div>
+            <div id="fireworks-container"></div>
         </main>
 
         <footer class="footer">
@@ -526,6 +558,7 @@
         
         const startDeBtn = document.getElementById('start-de-btn');
         const startFrBtn = document.getElementById('start-fr-btn');
+        const startEnBtn = document.getElementById('start-en-btn'); // NEU: Referenz zum englischen Button
 
         const startTitleEl = document.getElementById('start-title');
         const startIntroEl = document.getElementById('start-intro');
@@ -595,6 +628,34 @@
                 improvement_summary: 'Amélioration T{round1} → T{round2}:',
                 number_singular: 'chiffre',
                 number_plural: 'chiffres'
+            },
+            // NEU: Englisches Übersetzungsobjekt
+            en: {
+                title: '5S Number Game',
+                start_intro: 'In the following game, you will see the numbers 1-99 randomly distributed on the screen. The task is to tap the numbers 1-49 in order within 25 seconds. Round 1 starts after the countdown and symbolizes the situation of a disorganized workplace / inefficient process.',
+                start_button: 'Start Game',
+                round_info: 'Round {round} of 4',
+                next_number_label: 'Next Number',
+                round_summary_title: 'Round Statistics',
+                highest_number_label: 'Number Reached:',
+                next_round_button: 'Next Round',
+                replay_round_button: 'Replay Round',
+                final_summary_title: 'Overall Summary',
+                final_message: 'Welcome to the world of Lean, where every second counts!',
+                play_again_button: 'Play Again',
+                pause_label: 'Pause',
+                resume_label: 'Resume',
+                round_messages: [
+                    `We will now apply 5S to optimize this process and organize our workplace. We start with the first S, Seiri - Sort. We sort out all the numbers we do not need. This means numbers 50-99 are removed, making our workspace clearer. Try again, and at the end, we'll see if there was an efficiency increase. The same rules apply.`,
+                    `Only the necessary items remain. With the second 5S principle, Seiton - Set in Order, we set up shelves for the numbers and arrange them as follows: 1 goes in the bottom left, 2 in the middle left, 3 in the top left, 4 in the bottom center, and so on. Start another round and see if you become more efficient.`,
+                    `In the next round, we will also apply the 3rd & 4th principles of 5S: Seiso - Shine and Seiketsu - Standardize. We are reorganizing everything to make it as easy as possible to work. Try again and see how much more efficient you become.`,
+                    `Perfect! You have mastered the process. Now, all that's left is Shitsuke - Sustain. We want to constantly improve and maintain the order we have created. Thus, we have correctly applied 5S and will see in the evaluation how much more efficient we have become from round to round.`
+                ],
+                final_round_result: 'Round {round}: <strong>{highest} {plural_zahl}</strong>',
+                time_left_summary: '({time}s left)',
+                improvement_summary: 'Improvement R{round1} → R{round2}:',
+                number_singular: 'number',
+                number_plural: 'numbers'
             }
         };
         
@@ -677,6 +738,7 @@
             generateMasterLayout();
             
             startDeBtn.onclick = () => selectLanguage('de');
+            startEnBtn.onclick = () => selectLanguage('en'); // NEU: Event-Listener für Englisch
             startFrBtn.onclick = () => selectLanguage('fr');
 
             startGameBtn.onclick = () => {
@@ -706,7 +768,7 @@
 
             replayRoundBtn.onclick = () => {
                 roundSummaryModal.classList.remove('visible');
-                results.pop();
+                results.pop(); 
                 startRound();
             };
 
@@ -754,6 +816,10 @@
             if (state.isFinished) return;
             state.isFinished = true;
 
+            if (state.currentRound === 3 && state.targetNumber > 49) {
+                triggerFireworks();
+            }
+
             cancelAnimationFrame(state.timerInterval);
             state.timerInterval = null;
             
@@ -791,9 +857,9 @@
                     : '';
                 
                 const pluralKey = res.highest === 1 ? 'number_singular' : 'number_plural';
-                const numberText = t[pluralKey] || (res.highest === 1 ? 'Zahl' : 'Zahlen');
+                const numberText = t[pluralKey] || (res.highest === 1 ? 'number' : 'numbers');
 
-                let roundText = t.final_round_result || "Runde {round}: <strong>{highest} {plural_zahl}</strong>";
+                let roundText = t.final_round_result || "Round {round}: <strong>{highest} {plural_zahl}</strong>";
                 roundText = roundText.replace('{round}', index + 1)
                                      .replace('{highest}', res.highest)
                                      .replace('{plural_zahl}', numberText)
@@ -818,7 +884,7 @@
 
                 const improvementLine = document.createElement('div');
                 improvementLine.className = 'result-item';
-                let improvementText = t.improvement_summary || "Verbesserung R{round1} → R{round2}:";
+                let improvementText = t.improvement_summary || "Improvement R{round1} → R{round2}:";
                 improvementText = improvementText.replace('{round1}', i + 1).replace('{round2}', i + 2);
                 
                 improvementLine.innerHTML = `
@@ -834,7 +900,7 @@
         function startTimer() {
             let startTime = Date.now();
             let accumulatedTime = config.roundDuration - state.timeLeft; 
-        
+            
             cancelAnimationFrame(state.timerInterval); 
 
             const tick = () => {
@@ -1045,8 +1111,8 @@
             const layout = [];
             const gridCells = [
                 { row: 2, col: 0, numbers: [1, 10, 19, 28, 37, 46] }, { row: 1, col: 0, numbers: [2, 11, 20, 29, 38, 47] }, { row: 0, col: 0, numbers: [3, 12, 21, 30, 39, 48] },
-                { row: 2, col: 1, numbers: [4, 13, 22, 31, 40, 49] }, { row: 1, col: 1, numbers: [5, 14, 23, 32, 41] },     { row: 0, col: 1, numbers: [6, 15, 24, 33, 42] },
-                { row: 2, col: 2, numbers: [7, 16, 25, 34, 43] },     { row: 1, col: 2, numbers: [8, 17, 26, 35, 44] },     { row: 0, col: 2, numbers: [9, 18, 27, 36, 45] }
+                { row: 2, col: 1, numbers: [4, 13, 22, 31, 40, 49] }, { row: 1, col: 1, numbers: [5, 14, 23, 32, 41] },    { row: 0, col: 1, numbers: [6, 15, 24, 33, 42] },
+                { row: 2, col: 2, numbers: [7, 16, 25, 34, 43] },    { row: 1, col: 2, numbers: [8, 17, 26, 35, 44] },    { row: 0, col: 2, numbers: [9, 18, 27, 36, 45] }
             ];
             
             const cellWidth = 100 / 3;
@@ -1127,6 +1193,46 @@
                 layout.push(newTile);
             }
             return layout;
+        }
+        
+        function triggerFireworks() {
+            const container = document.getElementById('fireworks-container');
+            if (!container) return;
+            
+            container.innerHTML = ''; 
+            const particleCount = 60;
+            const colors = ['#50e3c2', '#4a90e2', '#e0e2e4', '#f5a623', '#f8e71c'];
+            
+            const centerX = '50%';
+            const centerY = '50%';
+            
+            for (let i = 0; i < particleCount; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'firework-particle';
+                
+                const angle = Math.random() * 360;
+                const radius = Math.random() * 150 + 50;
+                const x = Math.cos(angle * Math.PI / 180) * radius;
+                const y = Math.sin(angle * Math.PI / 180) * radius;
+                
+                particle.style.setProperty('--x', `${x}px`);
+                particle.style.setProperty('--y', `${y}px`);
+                
+                particle.style.left = centerX;
+                particle.style.top = centerY;
+                particle.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+                
+                const duration = Math.random() * 0.5 + 0.8;
+                const delay = Math.random() * 0.2;
+                
+                particle.style.animation = `fireworks-explode ${duration}s ease-out ${delay}s forwards`;
+                
+                container.appendChild(particle);
+            }
+
+            setTimeout(() => {
+                container.innerHTML = '';
+            }, 2000);
         }
 
         function getRotatedBoundingBox(width, height, angle) {
