@@ -1107,13 +1107,13 @@
             masterLayout = placedTiles;
         }
 
-    function generateRound3Layout() {
+      function generateRound3Layout() {
   const layout = [];
   const gridCells = [
-    { row: 2, col: 0, numbers: [1, 10, 19, 28, 37, 46] },
-    { row: 1, col: 0, numbers: [2, 11, 20, 29, 38, 47] },
+    { row: 2, col: 0, numbers: [1, 10, 19, 28, 37, 46] }, 
+    { row: 1, col: 0, numbers: [2, 11, 20, 29, 38, 47] }, 
     { row: 0, col: 0, numbers: [3, 12, 21, 30, 39, 48] },
-    { row: 2, col: 1, numbers: [4, 13, 22, 31, 40, 49] },
+    { row: 2, col: 1, numbers: [4, 13, 22, 31, 40, 49] }, 
     { row: 1, col: 1, numbers: [5, 14, 23, 32, 41] },
     { row: 0, col: 1, numbers: [6, 15, 24, 33, 42] },
     { row: 2, col: 2, numbers: [7, 16, 25, 34, 43] },
@@ -1125,7 +1125,7 @@
   const cellH = 100 / 3;
   const boardRect = boardContainer.getBoundingClientRect();
 
-  // Mess-Element
+  // Mess Element
   const meas = document.createElement('div');
   meas.className = 'number-tile font-oswald';
   meas.style.position = 'absolute';
@@ -1133,7 +1133,7 @@
   document.body.appendChild(meas);
 
   const isSmall = Math.min(boardRect.width, boardRect.height) < 520;
-  const SAFETY = 1.08; // gegen Mobile-Rundungen
+  const SAFETY = 1.10; // Sicherheitsaufschlag gegen Mobile Rundungen
 
   function measure(num, fontClass, sizePx) {
     meas.className = `number-tile ${fontClass}`;
@@ -1143,132 +1143,172 @@
     return { w: r.width, h: r.height };
   }
 
-  // deterministische „Shuffle“-Helfer (pro Zelle)
-  function rngFor(cellIdx) { return mulberry32((config.seed >>> 0) + 1000 * cellIdx + 303); }
-  function shuffleDet(arr, rnd) {
-    for (let i = arr.length - 1; i > 0; i--) {
-      const j = Math.floor(rnd() * (i + 1));
-      [arr[i], arr[j]] = [arr[j], arr[i]];
-    }
-    return arr;
-  }
-  // deterministische Mikro-Offsets je Zahl
-  function microOffset(n, maxX, maxY) {
-    const fx = (((n * 37) % 1000) / 1000) - 0.5;
-    const fy = (((n * 91) % 1000) / 1000) - 0.5;
-    return { dx: fx * maxX, dy: fy * maxY };
-  }
-  // Mindestabstand zwischen Slots (Chebyshev)
-  function farEnough(a, b, minSep) {
-    return Math.max(Math.abs(a.r - b.r), Math.abs(a.c - b.c)) >= minSep;
-  }
+  // deterministisches RNG pro Zelle und Zahl
+  function rngForCell(cellIdx) { return mulberry32((config.seed >>> 0) + 7001 + cellIdx * 911); }
+  function rngForNum(cellIdx, num) { return mulberry32((config.seed >>> 0) + 17041 + cellIdx * 1321 + num * 97); }
 
   gridCells.forEach(cell => {
     const nums = cell.numbers;
     if (!nums || nums.length === 0) return;
 
     const cellIdx = cell.row * 3 + cell.col;
-    const rnd = rngFor(cellIdx);
+    const rndCell = rngForCell(cellIdx);
 
-    // Zellgeometrie
+    // Zellgeometrie in Pixel
     const cellX0pct = cell.col * cellW;
     const cellY0pct = cell.row * cellH;
     const cellWpx = boardRect.width * (cellW / 100);
     const cellHpx = boardRect.height * (cellH / 100);
 
-    const padCell = Math.max(8, Math.round(Math.min(cellWpx, cellHpx) * 0.06));
+    const padCell = Math.max(10, Math.round(Math.min(cellWpx, cellHpx) * 0.06));
 
-    // Feineres Slot-Raster: 4x3 (12 Slots) für 5–6 Zahlen -> verteilter Look
-    const cols = 4, rows = 3;
-    const slotW = (cellWpx - 2 * padCell) / cols;
-    const slotH = (cellHpx - 2 * padCell) / rows;
+    // Basisgroesse je Zelle nach Dichte der Zahlen
+    const density = Math.max(1, nums.length); // 5 oder 6
+    const baseSide = Math.min(cellWpx, cellHpx);
+    let baseTarget = baseSide / (1.7 + 0.28 * Math.sqrt(density));
+    baseTarget = Math.min(baseTarget, isSmall ? 40 : 48);
+    baseTarget = Math.max(baseTarget, 18);
 
-    // Alle Slots erzeugen und deterministisch mischen
-    const allSlots = [];
-    for (let r = 0; r < rows; r++) for (let c = 0; c < cols; c++) allSlots.push({ r, c });
-    shuffleDet(allSlots, rnd);
+    const placedInCell = [];
 
-    // Slots auswählen: erst mit Mindestabstand, danach falls noetig auffuellen
-    const chosenSlots = [];
-    const MIN_SEP_PRIMARY = 2; // verteilt über die Zelle
-    for (const s of allSlots) {
-      if (chosenSlots.length >= nums.length) break;
-      if (chosenSlots.every(t => farEnough(s, t, MIN_SEP_PRIMARY))) chosenSlots.push(s);
-    }
-    // falls noch nicht genug, mit schwächerem Abstand weiter
-    if (chosenSlots.length < nums.length) {
-      for (const s of allSlots) {
-        if (chosenSlots.length >= nums.length) break;
-        if (chosenSlots.every(t => farEnough(s, t, 1))) chosenSlots.push(s);
-      }
-    }
-    // final auffuellen falls immer noch zu wenig (sollte selten sein)
-    while (chosenSlots.length < nums.length) {
-      chosenSlots.push(allSlots[chosenSlots.length % allSlots.length]);
-    }
-
-    // feste, aber „unruhige“ Zuordnung: Zahlen in Zell-Reihenfolge auf die gewählten Slots
-    // (Slots sind bereits deterministisch gemischt und distanziert)
-    const density = nums.length; // 5 oder 6
-    const baseSide = Math.min(slotW, slotH);
-    let target = baseSide / (1.45 + 0.22 * Math.sqrt(density));
-    target = Math.min(target, isSmall ? 38 : 44);
-    target = Math.max(target, 18);
-
-    nums.forEach((num, i) => {
+    nums.forEach(num => {
       const master = masterLayout.find(t => t.value === num);
       if (!master) return;
 
-      const slot = chosenSlots[i];
-      const slotCX = (cellX0pct / 100) * boardRect.width + padCell + (slot.c + 0.5) * slotW;
-      const slotCY = (cellY0pct / 100) * boardRect.height + padCell + (slot.r + 0.5) * slotH;
+      const rnd = rngForNum(cellIdx, num);
+
+      // sichtbarer Groessen Kontrast je Zahl, aber deterministisch
+      const sizeFactor = 0.85 + rnd() * 0.5; // 0.85 .. 1.35
+      let sizePx = baseTarget * sizeFactor;
 
       // Rotation exakt aus masterLayout
       const rot = master.rotationDeg;
 
-      // Grösse via Messung so einstellen, dass die rotierte Box sicher in den Slot passt
-      let sizePx = target;
-      const innerPad = Math.max(6, Math.round(target * 0.16));
+      // inneres Padding und minimaler Abstand zu anderen
+      const innerPad = Math.max(6, Math.round(sizePx * 0.16));
+      let minGap = Math.max(8, Math.round(sizePx * 0.20));
 
-      for (let k = 0; k < 8; k++) {
+      // Mehrfach versuchen, Position zu finden. Falls eng, schrittweise schrumpfen.
+      const SHRINK_STEPS = 7;
+      const MAX_ATTEMPTS = 220;
+
+      let placed = false;
+      let finalTile = null;
+
+      for (let s = 0; s <= SHRINK_STEPS && !placed; s++) {
+        if (s > 0) {
+          sizePx *= 0.92;
+          minGap = Math.max(6, Math.round(sizePx * 0.18));
+        }
+
+        // fuer aktuelle Groesse messen
         const m = measure(num, master.fontClass, sizePx);
         const rb = getRotatedBoundingBox(m.w, m.h, rot);
-        if (rb.width * SAFETY <= slotW - 2 * innerPad && rb.height * SAFETY <= slotH - 2 * innerPad) break;
-        sizePx *= 0.92;
-        if (sizePx < 14) break;
+
+        // erlaubte Bewegungsflaeche innerhalb der Zelle
+        const xMin = (cellX0pct / 100) * boardRect.width + padCell + rb.width * SAFETY / 2;
+        const xMax = ((cellX0pct + cellW) / 100) * boardRect.width - padCell - rb.width * SAFETY / 2;
+        const yMin = (cellY0pct / 100) * boardRect.height + padCell + rb.height * SAFETY / 2;
+        const yMax = ((cellY0pct + cellH) / 100) * boardRect.height - padCell - rb.height * SAFETY / 2;
+
+        if (xMax <= xMin || yMax <= yMin) continue;
+
+        // deterministischer Bias Vektor je Zahl und Zelle, um Raster Gefuehl zu brechen
+        const biasAngle = rnd() * Math.PI * 2;
+        const biasMag = Math.min(18, Math.min(xMax - xMin, yMax - yMin) * 0.12);
+        const biasX = Math.cos(biasAngle) * biasMag;
+        const biasY = Math.sin(biasAngle) * biasMag;
+
+        // Kandidaten testen
+        for (let attempt = 0; attempt < MAX_ATTEMPTS; attempt++) {
+          // kontinuierliche Position mit leichtem Randbias
+          const edgeBias = 0.6 + rndCell() * 0.8; // pro Zelle fix
+          const pickEdge = rnd() < 0.5;
+          let cx = xMin + rnd() * (xMax - xMin);
+          let cy = yMin + rnd() * (yMax - yMin);
+
+          if (pickEdge) {
+            // ziehe leicht zu Rändern, damit es unregelmaessiger wirkt
+            const tX = rnd();
+            const tY = rnd();
+            cx = tX < 0.5
+              ? xMin + Math.pow(rnd(), edgeBias) * (xMax - xMin)
+              : xMax - Math.pow(rnd(), edgeBias) * (xMax - xMin);
+            cy = tY < 0.5
+              ? yMin + Math.pow(rnd(), edgeBias) * (yMax - yMin)
+              : yMax - Math.pow(rnd(), edgeBias) * (yMax - yMin);
+          }
+
+          // Mikro Jitter plus deterministischer Bias, danach clampen
+          const jx = (rnd() - 0.5) * Math.min(14, (xMax - xMin) * 0.06) + biasX;
+          const jy = (rnd() - 0.5) * Math.min(14, (yMax - yMin) * 0.06) + biasY;
+
+          cx = Math.max(xMin, Math.min(xMax, cx + jx));
+          cy = Math.max(yMin, Math.min(yMax, cy + jy));
+
+          const candidate = {
+            ...master,
+            value: num,
+            rotationDeg: rot,
+            sizePx,
+            width: m.w,
+            height: m.h,
+            xPx: cx,
+            yPx: cy,
+            x: (cx / boardRect.width) * 100,
+            y: (cy / boardRect.height) * 100
+          };
+
+          // Kollision nur gegen bereits platzierte dieser Zelle pruefen
+          let overlaps = false;
+          for (const p of placedInCell) {
+            if (checkOverlap(candidate, p, minGap)) { overlaps = true; break; }
+          }
+          if (!overlaps) {
+            placedInCell.push(candidate);
+            layout.push(candidate);
+            finalTile = candidate;
+            placed = true;
+            break;
+          }
+        }
       }
 
-      // final messen für Offsets und Clamp
-      const m2 = measure(num, master.fontClass, sizePx);
-      const rb2 = getRotatedBoundingBox(m2.w, m2.h, rot);
+      // Fallback: wenn gar nichts passt, schiebe leicht in Richtung Zellmitte mit noch kleinerer Groesse
+      if (!placed) {
+        sizePx = Math.max(14, sizePx * 0.9);
+        const m2 = measure(num, master.fontClass, sizePx);
+        const rb2 = getRotatedBoundingBox(m2.w, m2.h, rot);
 
-      // deterministische Mikro-Offsets (wirken „reingeschossen“), streng im Slot geclamped
-      const maxOffX = Math.max(0, (slotW - rb2.width * SAFETY) / 2 - innerPad);
-      const maxOffY = Math.max(0, (slotH - rb2.height * SAFETY) / 2 - innerPad);
-      const mo = microOffset(num + cellIdx * 100, Math.min(18, maxOffX * 1.3), Math.min(18, maxOffY * 1.3));
+        const xMin = (cellX0pct / 100) * boardRect.width + padCell + rb2.width * SAFETY / 2;
+        const xMax = ((cellX0pct + cellW) / 100) * boardRect.width - padCell - rb2.width * SAFETY / 2;
+        const yMin = (cellY0pct / 100) * boardRect.height + padCell + rb2.height * SAFETY / 2;
+        const yMax = ((cellY0pct + cellH) / 100) * boardRect.height - padCell - rb2.height * SAFETY / 2;
 
-      const cx = slotCX + Math.max(-maxOffX, Math.min(maxOffX, mo.dx));
-      const cy = slotCY + Math.max(-maxOffY, Math.min(maxOffY, mo.dy));
+        const cx = (xMin + xMax) / 2;
+        const cy = (yMin + yMax) / 2;
 
-      layout.push({
-        ...master,
-        value: num,
-        rotationDeg: rot,
-        sizePx,
-        width: m2.w,
-        height: m2.h,
-        xPx: cx,
-        yPx: cy,
-        x: (cx / boardRect.width) * 100,
-        y: (cy / boardRect.height) * 100
-      });
+        const fallback = {
+          ...master,
+          value: num,
+          rotationDeg: rot,
+          sizePx,
+          width: m2.w,
+          height: m2.h,
+          xPx: cx,
+          yPx: cy,
+          x: (cx / boardRect.width) * 100,
+          y: (cy / boardRect.height) * 100
+        };
+        placedInCell.push(fallback);
+        layout.push(fallback);
+      }
     });
   });
 
   document.body.removeChild(meas);
   return layout;
 }
-
 
 
         
