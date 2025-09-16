@@ -1107,52 +1107,72 @@
             masterLayout = placedTiles;
         }
 
-       function generateRound3Layout() {
+      function generateRound3Layout() {
             const layout = [];
             const gridCells = [
-                // Die Zuordnung der Zahlen zu den Zellen. 
-                // In der alten Version fehlte hier die Zahl 49.
-                { row: 2, col: 0, numbers: [1, 10, 19, 28, 37, 46] }, 
-                { row: 1, col: 0, numbers: [2, 11, 20, 29, 38, 47] }, 
-                { row: 0, col: 0, numbers: [3, 12, 21, 30, 39, 48] },
-                
-                // --- KORREKTUR START ---
-                // Die Zahl 49 wurde hier zur korrekten Zelle hinzugefügt.
-                { row: 2, col: 1, numbers: [4, 13, 22, 31, 40, 49] }, 
-                // --- KORREKTUR ENDE ---
-
-                { row: 1, col: 1, numbers: [5, 14, 23, 32, 41] },    
-                { row: 0, col: 1, numbers: [6, 15, 24, 33, 42] },
-                { row: 2, col: 2, numbers: [7, 16, 25, 34, 43] },    
-                { row: 1, col: 2, numbers: [8, 17, 26, 35, 44] },    
-                { row: 0, col: 2, numbers: [9, 18, 27, 36, 45] }
+                { row: 2, col: 0, numbers: [1, 10, 19, 28, 37, 46] }, { row: 1, col: 0, numbers: [2, 11, 20, 29, 38, 47] }, { row: 0, col: 0, numbers: [3, 12, 21, 30, 39, 48] },
+                { row: 2, col: 1, numbers: [4, 13, 22, 31, 40, 49] }, { row: 1, col: 1, numbers: [5, 14, 23, 32, 41] },    { row: 0, col: 1, numbers: [6, 15, 24, 33, 42] },
+                { row: 2, col: 2, numbers: [7, 16, 25, 34, 43] },    { row: 1, col: 2, numbers: [8, 17, 26, 35, 44] },    { row: 0, col: 2, numbers: [9, 18, 27, 36, 45] }
             ];
             
             const cellWidth = 100 / 3;
             const cellHeight = 100 / 3;
+            const boardRect = boardContainer.getBoundingClientRect();
             
-            // Ein fester Zufallsgenerator sorgt dafür, dass das Layout immer gleich ist.
-            const layoutPrng = mulberry32(config.seed + 3); 
+            // Ein fester Zufallsgenerator sorgt dafür, dass die Platzierungsversuche immer gleich ablaufen.
+            const layoutPrng = mulberry32(config.seed + 3);
 
             gridCells.forEach(cell => {
                 const cellXStart = cell.col * cellWidth;
                 const cellYStart = cell.row * cellHeight;
-                
+                const placedInCell = [];
+
                 cell.numbers.forEach(num => {
                     const masterTile = masterLayout.find(t => t.value === num);
-                    // Dieser Fall sollte nicht eintreten, ist aber eine gute Absicherung.
-                    if (!masterTile) {
-                        console.error("Kachel nicht im Master-Layout gefunden:", num);
-                        return; 
-                    }
+                    if (!masterTile) return;
 
                     const newTile = { ...masterTile };
+                    let positionFound = false;
 
-                    // Bestimmt eine feste, aber natürlich aussehende Position in der Zelle.
-                    const padding = 15; 
-                    newTile.x = cellXStart + padding / 2 + layoutPrng() * (cellWidth - padding);
-                    newTile.y = cellYStart + padding / 2 + layoutPrng() * (cellHeight - padding);
+                    // Wir versuchen bis zu 200 Mal, eine feste, aber nicht überlappende Position zu finden.
+                    for (let attempt = 0; attempt < 200; attempt++) {
+                        const tileWidthPercent = newTile.width / boardRect.width * 100;
+                        const tileHeightPercent = newTile.height / boardRect.height * 100;
+
+                        const xRange = cellWidth - tileWidthPercent;
+                        const yRange = cellHeight - tileHeightPercent;
+                        
+                        // Fallback, falls eine Kachel grösser als die Zelle ist (sollte nicht passieren).
+                        if (xRange < 0 || yRange < 0) break; 
+
+                        // Berechne eine deterministische Position basierend auf dem layoutPrng.
+                        newTile.x = cellXStart + (tileWidthPercent / 2) + (layoutPrng() * xRange);
+                        newTile.y = cellYStart + (tileHeightPercent / 2) + (layoutPrng() * yRange);
+
+                        // Pixel-Werte für die Überlappungsprüfung berechnen.
+                        newTile.xPx = (newTile.x / 100) * boardRect.width;
+                        newTile.yPx = (newTile.y / 100) * boardRect.height;
+                        
+                        let overlaps = false;
+                        for (const placed of placedInCell) {
+                            // checkOverlap prüft, ob sich die Bounding Boxen der Kacheln berühren.
+                            if (checkOverlap(newTile, placed, 2)) { // 2px Abstand
+                                overlaps = true;
+                                break;
+                            }
+                        }
+
+                        if (!overlaps) {
+                            positionFound = true;
+                            break; // Perfekter Platz gefunden, Schleife abbrechen.
+                        }
+                    }
                     
+                    // Wenn nach 200 Versuchen immer noch kein Platz gefunden wurde 
+                    // (extrem unwahrscheinlich), wird die letzte berechnete Position verwendet.
+                    // Das verhindert, dass eine Zahl verschwindet.
+                    
+                    placedInCell.push(newTile);
                     layout.push(newTile);
                 });
             });
