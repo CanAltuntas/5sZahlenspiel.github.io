@@ -1108,148 +1108,128 @@
         }
 
       function generateRound3Layout() {
-            const layout = [];
-            const gridCells = [
-                { row: 2, col: 0, numbers: [1, 10, 19, 28, 37, 46] }, 
-                { row: 1, col: 0, numbers: [2, 11, 20, 29, 38, 47] }, 
-                { row: 0, col: 0, numbers: [3, 12, 21, 30, 39, 48] },
-                { row: 2, col: 1, numbers: [4, 13, 22, 31, 40, 49] }, 
-                { row: 1, col: 1, numbers: [5, 14, 23, 32, 41] },    
-                { row: 0, col: 1, numbers: [6, 15, 24, 33, 42] },
-                { row: 2, col: 2, numbers: [7, 16, 25, 34, 43] },    
-                { row: 1, col: 2, numbers: [8, 17, 26, 35, 44] },    
-                { row: 0, col: 2, numbers: [9, 18, 27, 36, 45] }
-            ];
-            
-            const cellWidth = 100 / 3;
-            const cellHeight = 100 / 3;
-            const boardRect = boardContainer.getBoundingClientRect();
-            
-            // Dedicated PRNG for consistent grid layout
-            const layoutPrng = mulberry32(config.seed + 3);
+  const layout = [];
+  const gridCells = [
+    { row: 2, col: 0, numbers: [1, 10, 19, 28, 37, 46] },
+    { row: 1, col: 0, numbers: [2, 11, 20, 29, 38, 47] },
+    { row: 0, col: 0, numbers: [3, 12, 21, 30, 39, 48] },
+    { row: 2, col: 1, numbers: [4, 13, 22, 31, 40, 49] },
+    { row: 1, col: 1, numbers: [5, 14, 23, 32, 41] },
+    { row: 0, col: 1, numbers: [6, 15, 24, 33, 42] },
+    { row: 2, col: 2, numbers: [7, 16, 25, 34, 43] },
+    { row: 1, col: 2, numbers: [8, 17, 26, 35, 44] },
+    { row: 0, col: 2, numbers: [9, 18, 27, 36, 45] }
+  ];
 
-            gridCells.forEach(cell => {
-                const cellXStart = cell.col * cellWidth;
-                const cellYStart = cell.row * cellHeight;
-                const placedInCell = [];
+  const cellW = 100 / 3;
+  const cellH = 100 / 3;
+  const boardRect = boardContainer.getBoundingClientRect();
+  const layoutPrng = mulberry32(config.seed + 3);
 
-                // Calculate optimal tile size for mobile-friendly tapping
-                const availableCellWidthPx = (boardRect.width * cellWidth / 100);
-                const availableCellHeightPx = (boardRect.height * cellHeight / 100);
-                const minDimensionPx = Math.min(availableCellWidthPx, availableCellHeightPx);
-                
-                // Adaptive sizing based on number of items in cell and available space
-                const numItemsInCell = cell.numbers.length;
-                let targetTileSizePx;
-                
-                if (numItemsInCell <= 3) {
-                    targetTileSizePx = Math.min(minDimensionPx / 2.5, 45); // Larger for fewer items
-                } else if (numItemsInCell <= 4) {
-                    targetTileSizePx = Math.min(minDimensionPx / 3, 35);   // Medium size
-                } else {
-                    targetTileSizePx = Math.min(minDimensionPx / 3.5, 28); // Smaller for more items
-                }
-                
-                // Minimum size for mobile tapping
-                targetTileSizePx = Math.max(targetTileSizePx, 20);
+  // ein einziges Mess-Element wiederverwenden
+  const meas = document.createElement('div');
+  meas.className = 'number-tile font-oswald';
+  meas.style.position = 'absolute';
+  meas.style.visibility = 'hidden';
+  document.body.appendChild(meas);
 
-                cell.numbers.forEach((num, index) => {
-                    const masterTile = masterLayout.find(t => t.value === num);
-                    if (!masterTile) return;
+  const smallScreen = Math.min(boardRect.width, boardRect.height) < 500;
 
-                    const newTile = { ...masterTile };
-                    newTile.sizePx = targetTileSizePx; // Override with calculated size
-                    
-                    // Calculate actual dimensions for this specific tile
-                    const tempTile = document.createElement('div');
-                    tempTile.className = `number-tile ${newTile.fontClass}`;
-                    tempTile.style.fontSize = `${newTile.sizePx}px`;
-                    tempTile.style.position = 'absolute';
-                    tempTile.style.visibility = 'hidden';
-                    tempTile.textContent = num;
-                    document.body.appendChild(tempTile);
-                    
-                    const rect = tempTile.getBoundingClientRect();
-                    newTile.width = rect.width;
-                    newTile.height = rect.height;
-                    document.body.removeChild(tempTile);
+  // Hilfsfunktion: misst Breite und Höhe einer Zahl bei gegebener Font
+  function measure(num, fontClass, sizePx) {
+    meas.className = `number-tile ${fontClass}`;
+    meas.style.fontSize = `${sizePx}px`;
+    meas.textContent = String(num);
+    const r = meas.getBoundingClientRect();
+    return { w: r.width, h: r.height };
+  }
 
-                    let positionFound = false;
-                    const minGapPx = 8; // Minimum gap between tiles
-                    
-                    // Try systematic placement first for better distribution
-                    if (index < 4) { // First 4 numbers get systematic placement
-                        const positions = [
-                            { x: 0.3, y: 0.3 }, { x: 0.7, y: 0.3 },
-                            { x: 0.3, y: 0.7 }, { x: 0.7, y: 0.7 }
-                        ];
-                        
-                        if (index < positions.length) {
-                            const pos = positions[index];
-                            newTile.x = cellXStart + pos.x * cellWidth;
-                            newTile.y = cellYStart + pos.y * cellHeight;
-                            newTile.xPx = (newTile.x / 100) * boardRect.width;
-                            newTile.yPx = (newTile.y / 100) * boardRect.height;
-                            
-                            // Check if systematic position works
-                            let overlaps = false;
-                            for (const placed of placedInCell) {
-                                if (checkOverlap(newTile, placed, minGapPx)) {
-                                    overlaps = true;
-                                    break;
-                                }
-                            }
-                            
-                            if (!overlaps) {
-                                positionFound = true;
-                            }
-                        }
-                    }
-                    
-                    // If systematic placement failed or not applicable, try random placement
-                    if (!positionFound) {
-                        for (let attempt = 0; attempt < 100; attempt++) {
-                            const margin = 0.15; // 15% margin from cell edges
-                            const xRange = cellWidth * (1 - 2 * margin);
-                            const yRange = cellHeight * (1 - 2 * margin);
-                            
-                            newTile.x = cellXStart + margin * cellWidth + layoutPrng() * xRange;
-                            newTile.y = cellYStart + margin * cellHeight + layoutPrng() * yRange;
-                            newTile.xPx = (newTile.x / 100) * boardRect.width;
-                            newTile.yPx = (newTile.y / 100) * boardRect.height;
-                            
-                            let overlaps = false;
-                            for (const placed of placedInCell) {
-                                if (checkOverlap(newTile, placed, minGapPx)) {
-                                    overlaps = true;
-                                    break;
-                                }
-                            }
+  gridCells.forEach(cell => {
+    const nums = cell.numbers;
+    if (!nums || nums.length === 0) return;
 
-                            if (!overlaps) {
-                                positionFound = true;
-                                break;
-                            }
-                        }
-                    }
-                    
-                    // Fallback: place at center with slight offset if nothing else worked
-                    if (!positionFound) {
-                        newTile.x = cellXStart + cellWidth / 2 + (layoutPrng() - 0.5) * cellWidth * 0.3;
-                        newTile.y = cellYStart + cellHeight / 2 + (layoutPrng() - 0.5) * cellHeight * 0.3;
-                        newTile.xPx = (newTile.x / 100) * boardRect.width;
-                        newTile.yPx = (newTile.y / 100) * boardRect.height;
-                    }
-                    
-                    // Reduce rotation for better mobile experience
-                    newTile.rotationDeg = (layoutPrng() - 0.5) * 30; // Max 15 degrees either way
-                    
-                    placedInCell.push(newTile);
-                    layout.push(newTile);
-                });
-            });
-            return layout;
-        }
+    // Slots bestimmen: 2x2 bei bis 4, sonst 3er Spalten
+    const cols = nums.length <= 4 ? 2 : 3;
+    const rows = Math.ceil(nums.length / cols);
+
+    const cellX0pct = cell.col * cellW;
+    const cellY0pct = cell.row * cellH;
+
+    const cellWpx = boardRect.width * (cellW / 100);
+    const cellHpx = boardRect.height * (cellH / 100);
+
+    const slotW = cellWpx / cols;
+    const slotH = cellHpx / rows;
+    const base = Math.min(slotW, slotH);
+
+    // Innenabstand im Slot
+    const pad = Math.max(6, Math.round(base * 0.08));
+
+    // Start-Fontgrösse je nach Display
+    const startSize = Math.max(
+      20,
+      Math.min(smallScreen ? 36 : 42, Math.floor(base * 0.52))
+    );
+
+    nums.forEach((num, idx) => {
+      const master = masterLayout.find(t => t.value === num);
+      if (!master) return;
+
+      const rIdx = Math.floor(idx / cols);
+      const cIdx = idx % cols;
+
+      // Slot-Mitte in Pixel
+      const slotCenterXpx = (cellX0pct / 100) * boardRect.width + (cIdx + 0.5) * slotW;
+      const slotCenterYpx = (cellY0pct / 100) * boardRect.height + (rIdx + 0.5) * slotH;
+
+      // moderate Rotation, auf kleinen Screens noch kleiner
+      const rot = (layoutPrng() - 0.5) * (smallScreen ? 12 : 18);
+
+      // passende Fontgrösse suchen, sodass rotierte Box in den Slot passt
+      let sizePx = startSize;
+      for (let tries = 0; tries < 6; tries++) {
+        const m = measure(num, master.fontClass, sizePx);
+        const rb = getRotatedBoundingBox(m.w, m.h, rot);
+        if (rb.width <= slotW - 2 * pad && rb.height <= slotH - 2 * pad) break;
+        sizePx *= 0.92; // Schrittweise verkleinern
+      }
+
+      // winziges Jitter, bleibt aber sicher im Slot
+      const jitterX = (layoutPrng() - 0.5) * Math.min(10, slotW * 0.1);
+      const jitterY = (layoutPrng() - 0.5) * Math.min(10, slotH * 0.1);
+
+      const m2 = measure(num, master.fontClass, sizePx);
+      const rb2 = getRotatedBoundingBox(m2.w, m2.h, rot);
+
+      // clamp, damit die rotierte Box plus Padding im Slot bleibt
+      const maxOffsetX = (slotW - rb2.width) / 2 - pad;
+      const maxOffsetY = (slotH - rb2.height) / 2 - pad;
+
+      const cx = slotCenterXpx + Math.max(-maxOffsetX, Math.min(maxOffsetX, jitterX));
+      const cy = slotCenterYpx + Math.max(-maxOffsetY, Math.min(maxOffsetY, jitterY));
+
+      const newTile = {
+        ...master,
+        value: num,
+        fontClass: master.fontClass,
+        rotationDeg: rot,
+        sizePx,
+        width: m2.w,
+        height: m2.h,
+        xPx: cx,
+        yPx: cy,
+        x: (cx / boardRect.width) * 100,
+        y: (cy / boardRect.height) * 100
+      };
+
+      layout.push(newTile);
+    });
+  });
+
+  document.body.removeChild(meas);
+  return layout;
+}
+
         
         function generateRound4Layout() {
             const layout = [];
