@@ -558,7 +558,7 @@
         
         const startDeBtn = document.getElementById('start-de-btn');
         const startFrBtn = document.getElementById('start-fr-btn');
-        const startEnBtn = document.getElementById('start-en-btn'); // NEU: Referenz zum englischen Button
+        const startEnBtn = document.getElementById('start-en-btn');
 
         const startTitleEl = document.getElementById('start-title');
         const startIntroEl = document.getElementById('start-intro');
@@ -629,7 +629,6 @@
                 number_singular: 'chiffre',
                 number_plural: 'chiffres'
             },
-            // NEU: Englisches Übersetzungsobjekt
             en: {
                 title: '5S Number Game',
                 start_intro: 'In the following game, you will see the numbers 1-99 randomly distributed on the screen. The task is to tap the numbers 1-49 in order within 25 seconds. Round 1 starts after the countdown and symbolizes the situation of a disorganized workplace / inefficient process.',
@@ -738,7 +737,7 @@
             generateMasterLayout();
             
             startDeBtn.onclick = () => selectLanguage('de');
-            startEnBtn.onclick = () => selectLanguage('en'); // NEU: Event-Listener für Englisch
+            startEnBtn.onclick = () => selectLanguage('en');
             startFrBtn.onclick = () => selectLanguage('fr');
 
             startGameBtn.onclick = () => {
@@ -1107,7 +1106,7 @@
             masterLayout = placedTiles;
         }
 
-        // --- KORRIGIERTE FUNKTION ---
+        // --- NEUE, ROBUSTERE FUNKTION ---
         function generateRound3Layout() {
             const layout = [];
             const gridCells = [
@@ -1122,128 +1121,81 @@
                 { row: 0, col: 2, numbers: [9, 18, 27, 36, 45] }
             ];
 
+            const boardRect = boardContainer.getBoundingClientRect();
             const cellW_percent = 100 / 3;
             const cellH_percent = 100 / 3;
-            const boardRect = boardContainer.getBoundingClientRect();
-
-            // Temporäres Element zum Messen der Zahlengrösse
-            const tempMeasureEl = document.createElement('div');
-            tempMeasureEl.className = 'number-tile';
-            tempMeasureEl.style.position = 'absolute';
-            tempMeasureEl.style.visibility = 'hidden';
-            document.body.appendChild(tempMeasureEl);
-            
-            const isSmallDevice = Math.min(boardRect.width, boardRect.height) < 520;
-
-            function measureSize(num, fontClass, sizePx) {
-                tempMeasureEl.className = `number-tile ${fontClass}`;
-                tempMeasureEl.style.fontSize = `${sizePx}px`;
-                tempMeasureEl.textContent = String(num);
-                const rect = tempMeasureEl.getBoundingClientRect();
-                return { width: rect.width, height: rect.height };
-            }
 
             gridCells.forEach(cell => {
                 const numbersInCell = cell.numbers;
-                if (!numbersInCell || numbersInCell.length === 0) return;
+                const count = numbersInCell.length;
+                if (count === 0) return;
 
-                const placedInThisCell = [];
                 const cellRng = mulberry32(config.seed + cell.row * 10 + cell.col);
 
-                // Zell-Dimensionen in Pixeln
+                // Bestimme das Layout des Unter-Rasters
+                let subCols, subRows;
+                if (count <= 5) {
+                    subCols = 3; subRows = 2;
+                } else { // 6
+                    subCols = 3; subRows = 2;
+                }
+
+                // Dimensionen der Zelle und der Unter-Zellen in Pixeln
                 const cellX_px_start = boardRect.width * (cell.col * cellW_percent / 100);
                 const cellY_px_start = boardRect.height * (cell.row * cellH_percent / 100);
                 const cellWidth_px = boardRect.width * (cellW_percent / 100);
                 const cellHeight_px = boardRect.height * (cellH_percent / 100);
+                const subCellWidth = cellWidth_px / subCols;
+                const subCellHeight = cellHeight_px / subRows;
                 
-                // Basisschriftgrösse abhängig von der Zelldichte
-                const density = Math.max(1, numbersInCell.length);
-                let baseSize = Math.min(cellWidth_px, cellHeight_px) / (1.8 + 0.3 * Math.sqrt(density));
-                baseSize = Math.min(baseSize, isSmallDevice ? 38 : 46);
-                baseSize = Math.max(baseSize, 16);
+                // Eine sichere Schriftgrösse für alle Zahlen in dieser Zelle berechnen
+                const safeSize = Math.min(subCellWidth, subCellHeight) * 0.55;
 
-                numbersInCell.forEach(num => {
+                numbersInCell.forEach((num, index) => {
                     const master = masterLayout.find(t => t.value === num);
                     if (!master) return;
-                    
+
                     const numRng = mulberry32(config.seed + num * 97);
                     
-                    const sizeVariation = 0.8 + numRng() * 0.5; // 0.8 bis 1.3
-                    let currentSizePx = baseSize * sizeVariation;
-                    
-                    const rotation = master.rotationDeg;
-                    let minGap = Math.max(4, Math.round(currentSizePx * 0.1));
-                    
-                    const MAX_SHRINK_ATTEMPTS = 6;
-                    const MAX_PLACEMENT_ATTEMPTS = 150;
-                    
-                    let positionFound = false;
+                    // Bestimme die Position im Unter-Raster
+                    const subCol = index % subCols;
+                    let subRow = Math.floor(index / subCols);
 
-                    for (let shrink = 0; shrink < MAX_SHRINK_ATTEMPTS; shrink++) {
-                        if (shrink > 0) {
-                            currentSizePx *= 0.9; // Grösse reduzieren
-                            minGap = Math.max(3, Math.round(currentSizePx * 0.1));
-                        }
-
-                        const measured = measureSize(num, master.fontClass, currentSizePx);
-                        const bounds = getRotatedBoundingBox(measured.width, measured.height, rotation);
-
-                        const padding = Math.max(8, Math.round(Math.min(cellWidth_px, cellHeight_px) * 0.05));
-
-                        // Gültiger Bereich für den Mittelpunkt der Zahl
-                        const xMin = cellX_px_start + padding + bounds.width / 2;
-                        const xMax = cellX_px_start + cellWidth_px - padding - bounds.width / 2;
-                        const yMin = cellY_px_start + padding + bounds.height / 2;
-                        const yMax = cellY_px_start + cellHeight_px - padding - bounds.height / 2;
-
-                        if (xMax <= xMin || yMax <= yMin) continue;
-
-                        for (let attempt = 0; attempt < MAX_PLACEMENT_ATTEMPTS; attempt++) {
-                            const candidate = { ...master, value: num, rotationDeg: rotation, sizePx: currentSizePx };
-                            candidate.width = measured.width;
-                            candidate.height = measured.height;
-                            
-                            // Zufällige Position innerhalb des gültigen Bereichs
-                            candidate.xPx = xMin + cellRng() * (xMax - xMin);
-                            candidate.yPx = yMin + cellRng() * (yMax - yMin);
-                            
-                            let overlaps = false;
-                            for (const placedTile of placedInThisCell) {
-                                if (checkOverlap(candidate, placedTile, minGap)) {
-                                    overlaps = true;
-                                    break;
-                                }
-                            }
-                            
-                            if (!overlaps) {
-                                candidate.x = (candidate.xPx / boardRect.width) * 100;
-                                candidate.y = (candidate.yPx / boardRect.height) * 100;
-                                placedInThisCell.push(candidate);
-                                layout.push(candidate);
-                                positionFound = true;
-                                break;
-                            }
-                        }
-                        if (positionFound) break;
+                    // Spezielle Anordnung für 5 Zahlen, um die Mitte freizulassen
+                    let effectiveIndex = index;
+                    if (count === 5) {
+                        if (index >= 2) effectiveIndex++; // Überspringe die mittlere Position
                     }
+                    const finalSubCol = effectiveIndex % subCols;
+                    const finalSubRow = Math.floor(effectiveIndex / subCols);
 
-                    // Fallback, wenn absolut kein Platz gefunden wurde
-                    if (!positionFound) {
-                        const fallbackTile = { ...master, value: num, rotationDeg: rotation, sizePx: currentSizePx * 0.9 };
-                        fallbackTile.xPx = cellX_px_start + cellWidth_px / 2;
-                        fallbackTile.yPx = cellY_px_start + cellHeight_px / 2;
-                        fallbackTile.x = (fallbackTile.xPx / boardRect.width) * 100;
-                        fallbackTile.y = (fallbackTile.yPx / boardRect.height) * 100;
-                        layout.push(fallbackTile);
-                    }
+
+                    // Berechne den Mittelpunkt der Unter-Zelle
+                    let centerX = cellX_px_start + (finalSubCol + 0.5) * subCellWidth;
+                    let centerY = cellY_px_start + (finalSubRow + 0.5) * subCellHeight;
+                    
+                    // Füge eine kleine zufällige Abweichung ("Jitter") hinzu
+                    const jitterX = (numRng() - 0.5) * subCellWidth * 0.3;
+                    const jitterY = (numRng() - 0.5) * subCellHeight * 0.3;
+                    
+                    centerX += jitterX;
+                    centerY += jitterY;
+
+                    const tileData = {
+                        ...master,
+                        value: num,
+                        sizePx: safeSize,
+                        xPx: centerX,
+                        yPx: centerY,
+                        x: (centerX / boardRect.width) * 100,
+                        y: (centerY / boardRect.height) * 100,
+                    };
+                    layout.push(tileData);
                 });
             });
 
-            document.body.removeChild(tempMeasureEl);
             return layout;
         }
-
-
         
         function generateRound4Layout() {
             const layout = [];
