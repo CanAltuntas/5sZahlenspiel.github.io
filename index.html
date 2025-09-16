@@ -1110,16 +1110,22 @@
       function generateRound3Layout() {
             const layout = [];
             const gridCells = [
-                { row: 2, col: 0, numbers: [1, 10, 19, 28, 37, 46] }, { row: 1, col: 0, numbers: [2, 11, 20, 29, 38, 47] }, { row: 0, col: 0, numbers: [3, 12, 21, 30, 39, 48] },
-                { row: 2, col: 1, numbers: [4, 13, 22, 31, 40, 49] }, { row: 1, col: 1, numbers: [5, 14, 23, 32, 41] },    { row: 0, col: 1, numbers: [6, 15, 24, 33, 42] },
-                { row: 2, col: 2, numbers: [7, 16, 25, 34, 43] },    { row: 1, col: 2, numbers: [8, 17, 26, 35, 44] },    { row: 0, col: 2, numbers: [9, 18, 27, 36, 45] }
+                { row: 2, col: 0, numbers: [1, 10, 19, 28, 37, 46] }, 
+                { row: 1, col: 0, numbers: [2, 11, 20, 29, 38, 47] }, 
+                { row: 0, col: 0, numbers: [3, 12, 21, 30, 39, 48] },
+                { row: 2, col: 1, numbers: [4, 13, 22, 31, 40, 49] }, 
+                { row: 1, col: 1, numbers: [5, 14, 23, 32, 41] },    
+                { row: 0, col: 1, numbers: [6, 15, 24, 33, 42] },
+                { row: 2, col: 2, numbers: [7, 16, 25, 34, 43] },    
+                { row: 1, col: 2, numbers: [8, 17, 26, 35, 44] },    
+                { row: 0, col: 2, numbers: [9, 18, 27, 36, 45] }
             ];
             
             const cellWidth = 100 / 3;
             const cellHeight = 100 / 3;
             const boardRect = boardContainer.getBoundingClientRect();
             
-            // Ein fester Zufallsgenerator sorgt dafür, dass die Platzierungsversuche immer gleich ablaufen.
+            // Dedicated PRNG for consistent grid layout
             const layoutPrng = mulberry32(config.seed + 3);
 
             gridCells.forEach(cell => {
@@ -1127,50 +1133,116 @@
                 const cellYStart = cell.row * cellHeight;
                 const placedInCell = [];
 
-                cell.numbers.forEach(num => {
+                // Calculate optimal tile size for mobile-friendly tapping
+                const availableCellWidthPx = (boardRect.width * cellWidth / 100);
+                const availableCellHeightPx = (boardRect.height * cellHeight / 100);
+                const minDimensionPx = Math.min(availableCellWidthPx, availableCellHeightPx);
+                
+                // Adaptive sizing based on number of items in cell and available space
+                const numItemsInCell = cell.numbers.length;
+                let targetTileSizePx;
+                
+                if (numItemsInCell <= 3) {
+                    targetTileSizePx = Math.min(minDimensionPx / 2.5, 45); // Larger for fewer items
+                } else if (numItemsInCell <= 4) {
+                    targetTileSizePx = Math.min(minDimensionPx / 3, 35);   // Medium size
+                } else {
+                    targetTileSizePx = Math.min(minDimensionPx / 3.5, 28); // Smaller for more items
+                }
+                
+                // Minimum size for mobile tapping
+                targetTileSizePx = Math.max(targetTileSizePx, 20);
+
+                cell.numbers.forEach((num, index) => {
                     const masterTile = masterLayout.find(t => t.value === num);
                     if (!masterTile) return;
 
                     const newTile = { ...masterTile };
+                    newTile.sizePx = targetTileSizePx; // Override with calculated size
+                    
+                    // Calculate actual dimensions for this specific tile
+                    const tempTile = document.createElement('div');
+                    tempTile.className = `number-tile ${newTile.fontClass}`;
+                    tempTile.style.fontSize = `${newTile.sizePx}px`;
+                    tempTile.style.position = 'absolute';
+                    tempTile.style.visibility = 'hidden';
+                    tempTile.textContent = num;
+                    document.body.appendChild(tempTile);
+                    
+                    const rect = tempTile.getBoundingClientRect();
+                    newTile.width = rect.width;
+                    newTile.height = rect.height;
+                    document.body.removeChild(tempTile);
+
                     let positionFound = false;
-
-                    // Wir versuchen bis zu 200 Mal, eine feste, aber nicht überlappende Position zu finden.
-                    for (let attempt = 0; attempt < 200; attempt++) {
-                        const tileWidthPercent = newTile.width / boardRect.width * 100;
-                        const tileHeightPercent = newTile.height / boardRect.height * 100;
-
-                        const xRange = cellWidth - tileWidthPercent;
-                        const yRange = cellHeight - tileHeightPercent;
+                    const minGapPx = 8; // Minimum gap between tiles
+                    
+                    // Try systematic placement first for better distribution
+                    if (index < 4) { // First 4 numbers get systematic placement
+                        const positions = [
+                            { x: 0.3, y: 0.3 }, { x: 0.7, y: 0.3 },
+                            { x: 0.3, y: 0.7 }, { x: 0.7, y: 0.7 }
+                        ];
                         
-                        // Fallback, falls eine Kachel grösser als die Zelle ist (sollte nicht passieren).
-                        if (xRange < 0 || yRange < 0) break; 
-
-                        // Berechne eine deterministische Position basierend auf dem layoutPrng.
-                        newTile.x = cellXStart + (tileWidthPercent / 2) + (layoutPrng() * xRange);
-                        newTile.y = cellYStart + (tileHeightPercent / 2) + (layoutPrng() * yRange);
-
-                        // Pixel-Werte für die Überlappungsprüfung berechnen.
-                        newTile.xPx = (newTile.x / 100) * boardRect.width;
-                        newTile.yPx = (newTile.y / 100) * boardRect.height;
-                        
-                        let overlaps = false;
-                        for (const placed of placedInCell) {
-                            // checkOverlap prüft, ob sich die Bounding Boxen der Kacheln berühren.
-                            if (checkOverlap(newTile, placed, 2)) { // 2px Abstand
-                                overlaps = true;
-                                break;
+                        if (index < positions.length) {
+                            const pos = positions[index];
+                            newTile.x = cellXStart + pos.x * cellWidth;
+                            newTile.y = cellYStart + pos.y * cellHeight;
+                            newTile.xPx = (newTile.x / 100) * boardRect.width;
+                            newTile.yPx = (newTile.y / 100) * boardRect.height;
+                            
+                            // Check if systematic position works
+                            let overlaps = false;
+                            for (const placed of placedInCell) {
+                                if (checkOverlap(newTile, placed, minGapPx)) {
+                                    overlaps = true;
+                                    break;
+                                }
                             }
-                        }
-
-                        if (!overlaps) {
-                            positionFound = true;
-                            break; // Perfekter Platz gefunden, Schleife abbrechen.
+                            
+                            if (!overlaps) {
+                                positionFound = true;
+                            }
                         }
                     }
                     
-                    // Wenn nach 200 Versuchen immer noch kein Platz gefunden wurde 
-                    // (extrem unwahrscheinlich), wird die letzte berechnete Position verwendet.
-                    // Das verhindert, dass eine Zahl verschwindet.
+                    // If systematic placement failed or not applicable, try random placement
+                    if (!positionFound) {
+                        for (let attempt = 0; attempt < 100; attempt++) {
+                            const margin = 0.15; // 15% margin from cell edges
+                            const xRange = cellWidth * (1 - 2 * margin);
+                            const yRange = cellHeight * (1 - 2 * margin);
+                            
+                            newTile.x = cellXStart + margin * cellWidth + layoutPrng() * xRange;
+                            newTile.y = cellYStart + margin * cellHeight + layoutPrng() * yRange;
+                            newTile.xPx = (newTile.x / 100) * boardRect.width;
+                            newTile.yPx = (newTile.y / 100) * boardRect.height;
+                            
+                            let overlaps = false;
+                            for (const placed of placedInCell) {
+                                if (checkOverlap(newTile, placed, minGapPx)) {
+                                    overlaps = true;
+                                    break;
+                                }
+                            }
+
+                            if (!overlaps) {
+                                positionFound = true;
+                                break;
+                            }
+                        }
+                    }
+                    
+                    // Fallback: place at center with slight offset if nothing else worked
+                    if (!positionFound) {
+                        newTile.x = cellXStart + cellWidth / 2 + (layoutPrng() - 0.5) * cellWidth * 0.3;
+                        newTile.y = cellYStart + cellHeight / 2 + (layoutPrng() - 0.5) * cellHeight * 0.3;
+                        newTile.xPx = (newTile.x / 100) * boardRect.width;
+                        newTile.yPx = (newTile.y / 100) * boardRect.height;
+                    }
+                    
+                    // Reduce rotation for better mobile experience
+                    newTile.rotationDeg = (layoutPrng() - 0.5) * 30; // Max 15 degrees either way
                     
                     placedInCell.push(newTile);
                     layout.push(newTile);
