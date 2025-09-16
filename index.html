@@ -1107,40 +1107,49 @@
             masterLayout = placedTiles;
         }
 
-        function generateRound3Layout() {
+       function generateRound3Layout() {
             const layout = [];
             const gridCells = [
-                // Die Definition der Gitterzellen bleibt gleich...
-                { row: 2, col: 0, numbers: [1, 10, 19, 28, 37, 46] }, { row: 1, col: 0, numbers: [2, 11, 20, 29, 38, 47] }, { row: 0, col: 0, numbers: [3, 12, 21, 30, 39, 48] },
-                { row: 2, col: 1, numbers: [4, 13, 22, 31, 40, 49] }, { row: 1, col: 1, numbers: [5, 14, 23, 32, 41] },    { row: 0, col: 1, numbers: [6, 15, 24, 33, 42] },
-                { row: 2, col: 2, numbers: [7, 16, 25, 34, 43] },    { row: 1, col: 2, numbers: [8, 17, 26, 35, 44] },    { row: 0, col: 2, numbers: [9, 18, 27, 36, 45] }
+                // Die Zuordnung der Zahlen zu den Zellen. 
+                // In der alten Version fehlte hier die Zahl 49.
+                { row: 2, col: 0, numbers: [1, 10, 19, 28, 37, 46] }, 
+                { row: 1, col: 0, numbers: [2, 11, 20, 29, 38, 47] }, 
+                { row: 0, col: 0, numbers: [3, 12, 21, 30, 39, 48] },
+                
+                // --- KORREKTUR START ---
+                // Die Zahl 49 wurde hier zur korrekten Zelle hinzugefügt.
+                { row: 2, col: 1, numbers: [4, 13, 22, 31, 40, 49] }, 
+                // --- KORREKTUR ENDE ---
+
+                { row: 1, col: 1, numbers: [5, 14, 23, 32, 41] },    
+                { row: 0, col: 1, numbers: [6, 15, 24, 33, 42] },
+                { row: 2, col: 2, numbers: [7, 16, 25, 34, 43] },    
+                { row: 1, col: 2, numbers: [8, 17, 26, 35, 44] },    
+                { row: 0, col: 2, numbers: [9, 18, 27, 36, 45] }
             ];
             
             const cellWidth = 100 / 3;
             const cellHeight = 100 / 3;
             
-            // --- ÄNDERUNG START ---
-            // Wir erstellen einen neuen, aber ebenfalls festen (seeded) Zufallsgenerator
-            // nur für dieses Layout. Dadurch wird sichergestellt, dass das Layout
-            // immer gleich ist, unabhängig davon, was in den Runden davor passiert ist.
-            const layoutPrng = mulberry32(config.seed + 3); // Leichter Offset zum Haupt-Seed
-            // --- ÄNDERUNG ENDE ---
+            // Ein fester Zufallsgenerator sorgt dafür, dass das Layout immer gleich ist.
+            const layoutPrng = mulberry32(config.seed + 3); 
 
             gridCells.forEach(cell => {
                 const cellXStart = cell.col * cellWidth;
                 const cellYStart = cell.row * cellHeight;
                 
-                // Wir platzieren die Zahlen in einem vorhersehbaren, aber natürlich
-                // aussehenden Muster innerhalb jeder Zelle.
                 cell.numbers.forEach(num => {
                     const masterTile = masterLayout.find(t => t.value === num);
-                    if (!masterTile) return;
+                    // Dieser Fall sollte nicht eintreten, ist aber eine gute Absicherung.
+                    if (!masterTile) {
+                        console.error("Kachel nicht im Master-Layout gefunden:", num);
+                        return; 
+                    }
 
                     const newTile = { ...masterTile };
 
-                    // Wir nutzen den neuen Generator, um EINE feste Position zu bestimmen.
-                    // Kein Suchen mehr, keine Schleifen.
-                    const padding = 15; // Prozentualer Rand in der Zelle
+                    // Bestimmt eine feste, aber natürlich aussehende Position in der Zelle.
+                    const padding = 15; 
                     newTile.x = cellXStart + padding / 2 + layoutPrng() * (cellWidth - padding);
                     newTile.y = cellYStart + padding / 2 + layoutPrng() * (cellHeight - padding);
                     
