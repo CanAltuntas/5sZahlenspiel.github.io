@@ -1110,6 +1110,7 @@
         function generateRound3Layout() {
             const layout = [];
             const gridCells = [
+                // Die Definition der Gitterzellen bleibt gleich...
                 { row: 2, col: 0, numbers: [1, 10, 19, 28, 37, 46] }, { row: 1, col: 0, numbers: [2, 11, 20, 29, 38, 47] }, { row: 0, col: 0, numbers: [3, 12, 21, 30, 39, 48] },
                 { row: 2, col: 1, numbers: [4, 13, 22, 31, 40, 49] }, { row: 1, col: 1, numbers: [5, 14, 23, 32, 41] },    { row: 0, col: 1, numbers: [6, 15, 24, 33, 42] },
                 { row: 2, col: 2, numbers: [7, 16, 25, 34, 43] },    { row: 1, col: 2, numbers: [8, 17, 26, 35, 44] },    { row: 0, col: 2, numbers: [9, 18, 27, 36, 45] }
@@ -1117,55 +1118,33 @@
             
             const cellWidth = 100 / 3;
             const cellHeight = 100 / 3;
-            const boardRect = boardContainer.getBoundingClientRect();
+            
+            // --- ÄNDERUNG START ---
+            // Wir erstellen einen neuen, aber ebenfalls festen (seeded) Zufallsgenerator
+            // nur für dieses Layout. Dadurch wird sichergestellt, dass das Layout
+            // immer gleich ist, unabhängig davon, was in den Runden davor passiert ist.
+            const layoutPrng = mulberry32(config.seed + 3); // Leichter Offset zum Haupt-Seed
+            // --- ÄNDERUNG ENDE ---
 
             gridCells.forEach(cell => {
-                const numbersToPlace = [...cell.numbers];
                 const cellXStart = cell.col * cellWidth;
                 const cellYStart = cell.row * cellHeight;
-                const placedInCell = [];
-
-                numbersToPlace.sort(() => prng() - 0.5);
-
-                numbersToPlace.forEach(num => {
+                
+                // Wir platzieren die Zahlen in einem vorhersehbaren, aber natürlich
+                // aussehenden Muster innerhalb jeder Zelle.
+                cell.numbers.forEach(num => {
                     const masterTile = masterLayout.find(t => t.value === num);
                     if (!masterTile) return;
 
                     const newTile = { ...masterTile };
-                    let positionFound = false;
 
-                    for (let attempt = 0; attempt < 200; attempt++) {
-                        const tileWidthPercent = newTile.width / boardRect.width * 100;
-                        const tileHeightPercent = newTile.height / boardRect.height * 100;
-
-                        const xRange = cellWidth - tileWidthPercent;
-                        const yRange = cellHeight - tileHeightPercent;
-                        if (xRange < 0 || yRange < 0) break; 
-
-                        newTile.x = cellXStart + (tileWidthPercent / 2) + (prng() * xRange);
-                        newTile.y = cellYStart + (tileHeightPercent / 2) + (prng() * yRange);
-
-                        newTile.xPx = (newTile.x / 100) * boardRect.width;
-                        newTile.yPx = (newTile.y / 100) * boardRect.height;
-                        
-                        let overlaps = false;
-                        for (const placed of placedInCell) {
-                            if (checkOverlap(newTile, placed, 1)) {
-                                overlaps = true;
-                                break;
-                            }
-                        }
-
-                        if (!overlaps) {
-                            positionFound = true;
-                            break;
-                        }
-                    }
-
-                    if (positionFound) {
-                        placedInCell.push(newTile);
-                        layout.push(newTile);
-                    }
+                    // Wir nutzen den neuen Generator, um EINE feste Position zu bestimmen.
+                    // Kein Suchen mehr, keine Schleifen.
+                    const padding = 15; // Prozentualer Rand in der Zelle
+                    newTile.x = cellXStart + padding / 2 + layoutPrng() * (cellWidth - padding);
+                    newTile.y = cellYStart + padding / 2 + layoutPrng() * (cellHeight - padding);
+                    
+                    layout.push(newTile);
                 });
             });
             return layout;
