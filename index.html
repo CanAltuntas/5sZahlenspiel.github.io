@@ -543,8 +543,6 @@
 
 
         // --- DOM Element References ---
-        const countdownOverlay = document.getElementById('countdown-overlay');
-        const countdownTimerEl = document.getElementById('countdown-timer');
         const app = document.getElementById('app');
         const board = document.getElementById('board');
         const boardContainer = document.querySelector('.board-container');
@@ -782,7 +780,10 @@
             state.isFinished = false;
         }
 
+        // Die Countdown-Funktion ist noch da, wird aber nicht mehr aufgerufen.
         function showCountdownAndStart() {
+            const countdownOverlay = document.getElementById('countdown-overlay');
+            const countdownTimerEl = document.getElementById('countdown-timer');
             let count = 3;
             countdownTimerEl.textContent = count;
             countdownOverlay.classList.add('visible');
@@ -808,7 +809,8 @@
             clearBoard();
             generateBoard();
             
-            showCountdownAndStart();
+            // ANPASSUNG: Countdown wird übersprungen, Timer startet sofort.
+            startTimer();
         }
 
         function endRound() {
@@ -1106,7 +1108,6 @@
             masterLayout = placedTiles;
         }
 
-        // --- NEUE, ROBUSTERE FUNKTION ---
         function generateRound3Layout() {
             const layout = [];
             const gridCells = [
@@ -1158,13 +1159,9 @@
                     const numRng = mulberry32(config.seed + num * 97);
                     
                     // Bestimme die Position im Unter-Raster
-                    const subCol = index % subCols;
-                    let subRow = Math.floor(index / subCols);
-
-                    // Spezielle Anordnung für 5 Zahlen, um die Mitte freizulassen
                     let effectiveIndex = index;
                     if (count === 5) {
-                        if (index >= 2) effectiveIndex++; // Überspringe die mittlere Position
+                        if (index >= 2) effectiveIndex++; // Überspringe die mittlere Position (Slot 2)
                     }
                     const finalSubCol = effectiveIndex % subCols;
                     const finalSubRow = Math.floor(effectiveIndex / subCols);
