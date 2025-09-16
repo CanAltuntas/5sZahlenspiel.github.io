@@ -1107,7 +1107,7 @@
             masterLayout = placedTiles;
         }
 
-      function generateRound3Layout() {
+    function generateRound3Layout() {
   const layout = [];
   const gridCells = [
     { row: 2, col: 0, numbers: [1, 10, 19, 28, 37, 46] },
@@ -1125,7 +1125,7 @@
   const cellH = 100 / 3;
   const boardRect = boardContainer.getBoundingClientRect();
 
-  // Mess-Element wiederverwenden
+  // Mess-Element
   const meas = document.createElement('div');
   meas.className = 'number-tile font-oswald';
   meas.style.position = 'absolute';
@@ -1133,7 +1133,7 @@
   document.body.appendChild(meas);
 
   const isSmall = Math.min(boardRect.width, boardRect.height) < 520;
-  const SAFETY = 1.07; // Sicherheitsaufschlag gegen Mobile-Rundungen
+  const SAFETY = 1.08; // gegen Mobile-Rundungen
 
   function measure(num, fontClass, sizePx) {
     meas.className = `number-tile ${fontClass}`;
@@ -1143,49 +1143,75 @@
     return { w: r.width, h: r.height };
   }
 
-  // Feste Slot-Topologie pro Zelle: 3 Spalten x 2 Reihen (max 6 Zahlen je Zelle)
-  // Reihenfolge bewusst „unruhig“ für eingestreuten Look
-  const SLOT_ORDER_6 = [
-    { c: 0, r: 0 }, // oben links
-    { c: 2, r: 1 }, // unten rechts
-    { c: 1, r: 0 }, // oben mitte
-    { c: 0, r: 1 }, // unten links
-    { c: 2, r: 0 }, // oben rechts
-    { c: 1, r: 1 }  // unten mitte
-  ];
-
-  // deterministische Mikro-Offests je Zahl (kein Zufall, aber „lebendig“)
+  // deterministische „Shuffle“-Helfer (pro Zelle)
+  function rngFor(cellIdx) { return mulberry32((config.seed >>> 0) + 1000 * cellIdx + 303); }
+  function shuffleDet(arr, rnd) {
+    for (let i = arr.length - 1; i > 0; i--) {
+      const j = Math.floor(rnd() * (i + 1));
+      [arr[i], arr[j]] = [arr[j], arr[i]];
+    }
+    return arr;
+  }
+  // deterministische Mikro-Offsets je Zahl
   function microOffset(n, maxX, maxY) {
-    // kleine, feste Verschiebung aus n abgeleitet
-    const fx = (((n * 37) % 1000) / 1000) - 0.5; // -0.5..0.5
+    const fx = (((n * 37) % 1000) / 1000) - 0.5;
     const fy = (((n * 91) % 1000) / 1000) - 0.5;
     return { dx: fx * maxX, dy: fy * maxY };
+  }
+  // Mindestabstand zwischen Slots (Chebyshev)
+  function farEnough(a, b, minSep) {
+    return Math.max(Math.abs(a.r - b.r), Math.abs(a.c - b.c)) >= minSep;
   }
 
   gridCells.forEach(cell => {
     const nums = cell.numbers;
     if (!nums || nums.length === 0) return;
 
+    const cellIdx = cell.row * 3 + cell.col;
+    const rnd = rngFor(cellIdx);
+
+    // Zellgeometrie
     const cellX0pct = cell.col * cellW;
     const cellY0pct = cell.row * cellH;
     const cellWpx = boardRect.width * (cellW / 100);
     const cellHpx = boardRect.height * (cellH / 100);
 
     const padCell = Math.max(8, Math.round(Math.min(cellWpx, cellHpx) * 0.06));
-    const cols = 3, rows = 2;
+
+    // Feineres Slot-Raster: 4x3 (12 Slots) für 5–6 Zahlen -> verteilter Look
+    const cols = 4, rows = 3;
     const slotW = (cellWpx - 2 * padCell) / cols;
     const slotH = (cellHpx - 2 * padCell) / rows;
 
-    // Wenn nur 5 Zahlen: einen Slot deterministisch leer lassen (variiert je Zelle)
-    const emptyIndex = (cell.row * 3 + cell.col) % 6;
-    const slotOrder = (nums.length === 5)
-      ? SLOT_ORDER_6.filter((_, idx) => idx !== emptyIndex)
-      : SLOT_ORDER_6.slice();
+    // Alle Slots erzeugen und deterministisch mischen
+    const allSlots = [];
+    for (let r = 0; r < rows; r++) for (let c = 0; c < cols; c++) allSlots.push({ r, c });
+    shuffleDet(allSlots, rnd);
 
-    // Zielgrösse: abhängig von Dichte, mobilfreundlich gekappt
+    // Slots auswählen: erst mit Mindestabstand, danach falls noetig auffuellen
+    const chosenSlots = [];
+    const MIN_SEP_PRIMARY = 2; // verteilt über die Zelle
+    for (const s of allSlots) {
+      if (chosenSlots.length >= nums.length) break;
+      if (chosenSlots.every(t => farEnough(s, t, MIN_SEP_PRIMARY))) chosenSlots.push(s);
+    }
+    // falls noch nicht genug, mit schwächerem Abstand weiter
+    if (chosenSlots.length < nums.length) {
+      for (const s of allSlots) {
+        if (chosenSlots.length >= nums.length) break;
+        if (chosenSlots.every(t => farEnough(s, t, 1))) chosenSlots.push(s);
+      }
+    }
+    // final auffuellen falls immer noch zu wenig (sollte selten sein)
+    while (chosenSlots.length < nums.length) {
+      chosenSlots.push(allSlots[chosenSlots.length % allSlots.length]);
+    }
+
+    // feste, aber „unruhige“ Zuordnung: Zahlen in Zell-Reihenfolge auf die gewählten Slots
+    // (Slots sind bereits deterministisch gemischt und distanziert)
     const density = nums.length; // 5 oder 6
     const baseSide = Math.min(slotW, slotH);
-    let target = baseSide / (1.55 + 0.22 * Math.sqrt(density));
+    let target = baseSide / (1.45 + 0.22 * Math.sqrt(density));
     target = Math.min(target, isSmall ? 38 : 44);
     target = Math.max(target, 18);
 
@@ -1193,11 +1219,11 @@
       const master = masterLayout.find(t => t.value === num);
       if (!master) return;
 
-      const slot = slotOrder[i]; // fester Slot für dieses Element
+      const slot = chosenSlots[i];
       const slotCX = (cellX0pct / 100) * boardRect.width + padCell + (slot.c + 0.5) * slotW;
       const slotCY = (cellY0pct / 100) * boardRect.height + padCell + (slot.r + 0.5) * slotH;
 
-      // Rotation exakt aus masterLayout übernehmen
+      // Rotation exakt aus masterLayout
       const rot = master.rotationDeg;
 
       // Grösse via Messung so einstellen, dass die rotierte Box sicher in den Slot passt
@@ -1208,18 +1234,19 @@
         const m = measure(num, master.fontClass, sizePx);
         const rb = getRotatedBoundingBox(m.w, m.h, rot);
         if (rb.width * SAFETY <= slotW - 2 * innerPad && rb.height * SAFETY <= slotH - 2 * innerPad) break;
-        sizePx *= 0.92; // falls zu gross, etwas schrumpfen
+        sizePx *= 0.92;
         if (sizePx < 14) break;
       }
 
-      // final messen für Offsets und Clamp
+      // final messen für Offsets und Clamp
       const m2 = measure(num, master.fontClass, sizePx);
       const rb2 = getRotatedBoundingBox(m2.w, m2.h, rot);
 
-      // deterministische Mikro-Offsets, aber streng innerhalb des freien Randes
+      // deterministische Mikro-Offsets (wirken „reingeschossen“), streng im Slot geclamped
       const maxOffX = Math.max(0, (slotW - rb2.width * SAFETY) / 2 - innerPad);
       const maxOffY = Math.max(0, (slotH - rb2.height * SAFETY) / 2 - innerPad);
-      const mo = microOffset(num, Math.min(14, maxOffX * 1.1), Math.min(14, maxOffY * 1.1));
+      const mo = microOffset(num + cellIdx * 100, Math.min(18, maxOffX * 1.3), Math.min(18, maxOffY * 1.3));
+
       const cx = slotCX + Math.max(-maxOffX, Math.min(maxOffX, mo.dx));
       const cy = slotCY + Math.max(-maxOffY, Math.min(maxOffY, mo.dy));
 
