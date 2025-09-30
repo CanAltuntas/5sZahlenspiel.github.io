@@ -569,20 +569,22 @@
 
     <script>
     document.addEventListener('DOMContentLoaded', () => {
-        // --- NEU: Supabase Client Setup (DEINE DATEN SIND EINGEFÜGT) ---
+        // --- KORRIGIERT: Supabase Client Setup ---
         const SUPABASE_URL = "https://xvdnahuhnqeeyqgfrmtk.supabase.co";
         const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inh2ZG5haHVobnFlZXlxZ2ZybXRrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTkxNTAyMTQsImV4cCI6MjA3NDcyNjIxNH0._LJwb7gayv9N8f4987EUCD1RqKqM6amR-09fam7dJWM";
 
-        let supabase = null;
+        let supabaseClient = null; // Wir benennen die Variable um, um Konflikte zu vermeiden.
         try {
-            if (SUPABASE_URL && SUPABASE_ANON_KEY) {
-                supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-                console.log("Supabase client initialized.");
+            // Wir prüfen, ob die Supabase-Bibliothek (das globale 'supabase'-Objekt) geladen wurde
+            if (window.supabase) {
+                // Wir verwenden die 'createClient' Funktion aus der globalen Bibliothek
+                supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+                console.log("Supabase client initialized successfully.");
             } else {
-                console.warn("Supabase-Zugangsdaten sind nicht gesetzt. Die Rangliste ist deaktiviert.");
+                console.error("Supabase library not loaded. Check the script tag.");
             }
         } catch (e) {
-            console.error("Fehler bei der Initialisierung des Supabase-Clients:", e);
+            console.error("Error initializing Supabase client:", e);
         }
 
         const splashScreen = document.getElementById('splash-screen');
@@ -590,7 +592,6 @@
         const languageSelectionScreen = document.getElementById('language-selection-screen');
         const gameStartScreen = document.getElementById('game-start-screen');
         
-        // ANGEPASST: Zeige zuerst die Namenseingabe nach dem Splash-Screen
         setTimeout(() => {
             splashScreen.classList.add('hidden');
             nameInputScreen.classList.add('visible');
@@ -644,7 +645,6 @@
                 play_again_button: 'Nochmal spielen',
                 pause_label: 'Pause',
                 resume_label: 'Weiter',
-                // NEUE TEXTE FÜR RANGLISTE
                 name_input_title: 'Gib deinen Namen ein',
                 name_input_text: 'Dein Name wird für die Rangliste verwendet.',
                 continue_button: 'Weiter',
@@ -680,7 +680,6 @@
                 play_again_button: 'Rejouer',
                 pause_label: 'Pause',
                 resume_label: 'Continuer',
-                // NEUE TEXTE FÜR RANGLISTE
                 name_input_title: 'Entrez votre nom',
                 name_input_text: 'Votre nom sera utilisé pour le classement.',
                 continue_button: 'Continuer',
@@ -716,7 +715,6 @@
                 play_again_button: 'Play Again',
                 pause_label: 'Pause',
                 resume_label: 'Resume',
-                // NEUE TEXTE FÜR RANGLISTE
                 name_input_title: 'Enter Your Name',
                 name_input_text: 'Your name will be used for the leaderboard.',
                 continue_button: 'Continue',
@@ -752,7 +750,7 @@
         };
 
         // --- Game State ---
-        let playerName = ''; // NEU: Speichert den Namen des Spielers
+        let playerName = '';
         let state = {
             currentRound: 0,
             targetNumber: 1,
@@ -782,7 +780,7 @@
             const params = new URLSearchParams(window.location.search);
             config.vibration = params.get('vibration') !== '0';
             config.colorblind = params.get('colorblind') === '1';
-            config.seed = parseInt(params.get('seed'), 10) || Date.now(); // Geändert für mehr Zufall
+            config.seed = parseInt(params.get('seed'), 10) || Date.now();
             config.sound = params.get('sound') !== '0';
             config.fontScale = parseFloat(params.get('fontScale')) || 1.0;
             document.documentElement.style.setProperty('--font-scale', config.fontScale);
@@ -793,7 +791,7 @@
             document.querySelectorAll('[data-lang-key]').forEach(el => {
                 const key = el.dataset.langKey;
                 if (t && t[key]) {
-                    el.innerHTML = t[key]; // innerHTML verwenden, damit <strong> etc. funktioniert
+                    el.innerHTML = t[key];
                 }
             });
         }
@@ -818,7 +816,6 @@
             
             generateMasterLayout();
             
-            // NEU: Event Listener für Namenseingabe
             const submitNameBtn = document.getElementById('submit-name-btn');
             const playerNameInput = document.getElementById('player-name-input');
             
@@ -828,7 +825,7 @@
                     playerName = name;
                     document.getElementById('name-input-screen').classList.remove('visible');
                     languageSelectionScreen.classList.add('visible');
-                    translateUI(); // Texte für Namens-Screen in gewählter Sprache aktualisieren
+                    translateUI();
                 } else {
                     playerNameInput.style.borderColor = 'var(--error-color)';
                     playerNameInput.placeholder = "Bitte Namen eingeben!";
@@ -851,7 +848,7 @@
             startGameBtn.onclick = () => {
                 gameStartScreen.classList.remove('visible');
                 resetGame();
-                showCountdownAndStart(); // Countdown vor der ersten Runde
+                showCountdownAndStart();
             };
             
             pauseBtn.onclick = togglePause;
@@ -883,14 +880,14 @@
                 window.location.reload();
             }
 
-            // NEU: Event Listener für Ranglisten-Buttons
             const showLeaderboardBtn = document.getElementById('show-leaderboard-btn');
             const backToSummaryBtn = document.getElementById('back-to-summary-btn');
             const finalSummaryView = document.getElementById('final-summary-view');
             const leaderboardView = document.getElementById('leaderboard-view');
             
             showLeaderboardBtn.onclick = () => {
-                if (!supabase) {
+                // Wir prüfen jetzt die korrigierte Variable 'supabaseClient'
+                if (!supabaseClient) {
                     alert("Ranglisten-Funktion ist nicht konfiguriert.");
                     return;
                 }
@@ -1027,56 +1024,47 @@
 
             finalSummaryModal.classList.add('visible');
             
-            // NEU: Ergebnis an Supabase senden
             submitScore();
         }
 
-        // NEUE FUNKTION: Ergebnis an Supabase senden
         async function submitScore() {
-            if (!supabase || !playerName) {
-                console.log("Supabase nicht konfiguriert oder Spielername nicht gesetzt. Senden übersprungen.");
+            if (!supabaseClient || !playerName) {
+                console.log("Supabase client not configured or player name not set. Skipping score submission.");
                 return;
             }
 
-            // Prüfen, ob ein Ergebnis für Runde 4 vorliegt
             if (results.length === 4) {
                 const round4Result = results[3];
-                // Nur senden, wenn der Spieler mindestens eine Zahl gefunden hat
                 if (round4Result.highest > 0) {
-                    // Benötigte Zeit in Millisekunden berechnen
                     const timeTakenMs = config.roundDuration - round4Result.timeLeft;
+                    console.log(`Submitting score for ${playerName}: ${timeTakenMs}ms`);
 
-                    console.log(`Sende Ergebnis für ${playerName}: ${timeTakenMs}ms`);
-
-                    const { error } = await supabase
-                        .from('scores') // 'scores' ist der Tabellenname
-                        .insert([
-                            { name: playerName, time_ms: timeTakenMs },
-                        ]);
+                    const { error } = await supabaseClient
+                        .from('scores')
+                        .insert([ { name: playerName, time_ms: timeTakenMs } ]);
 
                     if (error) {
-                        console.error('Fehler beim Senden des Ergebnisses an Supabase:', error);
+                        console.error('Error submitting score to Supabase:', error);
                     } else {
-                        console.log('Ergebnis erfolgreich gesendet!');
+                        console.log('Score submitted successfully!');
                     }
                 }
             }
         }
 
-        // NEUE FUNKTION: Rangliste von Supabase laden und anzeigen
         async function fetchAndShowLeaderboard() {
             const leaderboardList = document.getElementById('leaderboard-list');
             const t = translations[config.lang];
             leaderboardList.innerHTML = `<li>${t.leaderboard_loading}</li>`;
 
-            const { data, error } = await supabase
+            const { data, error } = await supabaseClient
                 .from('scores')
                 .select('name, time_ms')
-                .order('time_ms', { ascending: true }) // Schnellste Zeiten zuerst
-                .limit(20); // Die besten 20 anzeigen
+                .order('time_ms', { ascending: true })
+                .limit(20);
 
             if (error) {
-                console.error('Fehler beim Laden der Rangliste:', error);
+                console.error('Error fetching leaderboard:', error);
                 leaderboardList.innerHTML = `<li>${t.leaderboard_error}</li>`;
                 return;
             }
@@ -1472,6 +1460,11 @@
             const bBottom = tileB.yPx + boxB.height / 2;
 
             return !(aRight < bLeft - gap || aLeft > bRight + gap || aBottom < bTop - gap || aTop > bBottom + gap);
+        }
+
+        initGame();
+    });
+    </script>urn !(aRight < bLeft - gap || aLeft > bRight + gap || aBottom < bTop - gap || aTop > bBottom + gap);
         }
 
         initGame();
