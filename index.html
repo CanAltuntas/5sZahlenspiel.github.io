@@ -1110,6 +1110,9 @@
         }
 
         function handleTap(e) {
+            // NEU: Stellt sicher, dass kein Eingabefeld den Fokus hat und die Tastatur unten bleibt
+            if (document.activeElement instanceof HTMLElement) document.activeElement.blur();
+
             if (state.isPaused || state.isFinished || state.timeLeft <= 0) return;
 
             const now = Date.now();
