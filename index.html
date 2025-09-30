@@ -7,8 +7,6 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <title>5S Number Game</title>
     
-    <link rel="manifest" href="data:application/json;base64,ew0KICAgICJuYW1lIjogIjVTIFphaGxlbnNwaWVsIiwNCiAgICAic2hvcnRfbmFtZSI6ICI1UyBHYW1lIiwNCiAgICAic3RhcnRfdXJsIjogIi4iLA0KICAgICJkaXNwbGF5IjogImZ1bGxzY3JlZW4iLA0KICAgICJvcmllbnRhdGlvbiI6ICJwb3J0cmFpdCIsDQogICAgImJhY2tncm91bmRfY29sb3IiOiAiIzEzMTYxOCIsDQogICAgInRoZW1lX2NvbG9yIjogIiMxMzE2MTgiLA0KICAgICJpY29ucyI6IFsNCiAgICAgICAgew0KICAgICAgICAgICAgInNyYyI6ICJkYXRhOmltYWdlL3N2Zyt4bWw7YmFzZTY0,UEhOamNtbHpkQzV5YjI5MFpXUWdZMnhoYzNNOUltVnpkR1U5SW1GMlpXNTBaV04wSWlCbWFXeHNjejBpYUhSMGNEb3ZMM2QzZHk1M015NXZjbWN2TWpBeU1TOHdZMnhoYzNNOU1TNHdJaUIyYVdWM1FtOTRQU0p3Y205a2RXTjBJajhpWFN3aVlYVjBhR1Z1ZEdsaGJpQjBiMnh2WjJ4aGNtZ3ViVzlpYVd4bE9pQjNhR2x1WjNWaFoyVnlYMkZ6WlhKcFlTSXNJaU1pUGp4MFpYaDBJSGc5SWpFd01DVWlpSUdacGJHdzlJbUpzWVdOcklpQXZQanh6WlhKMGFXWnBjeUlzSWlNaVBqeDBaWGgwSUhnOUlqRXdNQVlpSUdacGJHdzlJbUpzWVdOcklpQXZQandpWlhoaGJYQnNaVzVqYjJSbElpQm9aV2xuYUhROUltaDBkSEE2THk5M2QzY3VZbTlpYTNWbGJpNWpiMjB2Y0hKdVpYZHpQZz09IiwNCiAgICAgICAgICAgICJzaXplcyI6ICIxOTJ4MTkyIiwNCiAgICAgICAgICAgICJ0eXBlIjogImltYWdlL3N2Zyt4bWwiDQogICAgICAgIH0sDQogICAgICAgIHsNCiAgICAgICAgICAgICJzcmMiOiAiZGF0YTppbWFnZS9zdmcreG1sO2Jhc2U2NC,UEhOamNtbHpkQzV5YjI5MFpXUWdZMnhoYzNNOUltVnpkR1U5SW1GMlpXNTBaV04wSWlCbWFXeHNjejBpYUhSMGNEb3ZMM2QzZHk1M015NXZjbWN2TWpBeU1TOHdZMnhoYzNNOU1TNHdJaUIyYVdWM1FtOTRQU0p3Y205a2RXTjBJajhpWFN3aVlYVjBhR1V1ZEdsaGJpQjBiMnh2WjJ4aGNtZ3ViVzlpYVd4bE9pQjNhR2x1WjNWaFoyVnlYMkZ6WlhKcFlTSXNJaU1pUGp4MFpYaDBJSGc5SWpFd01DVWlpSUdacGJHdzlJbUpzWVdOcklpQXZQanh6WlhKMGFXWnBjeUlzSWlNaVBqeDBaWGgwSUhnOUlqRXdNQVlpSUdacGJHdzlJbUpzWVdOcklpQXZQandpWlhoaGJYQnNaVzVqYjJSbElpQm9aV2xuYUhROUltaDBkSEE2THk5M2QzY3VZbTlpYTNWbGJpNWpiMjB2Y0hKdVpYZHpQZz09IiwNCiAgICAgICAgICAgICJzaXplcyI6ICI1MTJ4NTEyIiwNCiAgICAgICAgICAgICJ0eXBlIjogImltYWdlL3N2Zyt4bWwiDQogICAgICAgIH0NCiAgICBdDQp9">
-    
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
     <style>
@@ -59,13 +57,6 @@
             src: url('https://rsms.me/inter/font-files/Inter-Bold.woff2?v=3.19') format('woff2');
             font-weight: 700;
         }
-        
-        /* Spezifische Schriftarten für das Spiel */
-        @font-face { font-family: 'Oswald'; src: url('https://fonts.gstatic.com/s/oswald/v40/TK3_WkUHHAIjg75cFRf3bXL8LICs1_FvsUtiZSSdatI.woff2') format('woff2'); }
-        @font-face { font-family: 'Roboto Mono'; src: url('https://fonts.gstatic.com/s/robotomono/v13/L0x5DF4xlVMF-BfR8bXMIjhGq3-cXbKDO1w.woff2') format('woff2'); }
-        @font-face { font-family: 'Playfair Display'; src: url('https://fonts.gstatic.com/s/playfairdisplay/v25/nuFvD-vYSZviVYUb_rj3ij__anPXJzDwcbmjWBN2PKdFvXDXbtM.woff2') format('woff2'); }
-        @font-face { font-family: 'Permanent Marker'; src: url('https://fonts.gstatic.com/s/permanentmarker/v11/Fh4uPib9Iyv2ucM6pGQMWimMp004La2Cfw.woff2') format('woff2'); }
-
 
         html, body {
             margin: 0;
@@ -241,6 +232,13 @@
             box-sizing: border-box;
             transition: transform 0.1s ease-out, opacity 0.2s, color 0.1s;
             transform-origin: center center;
+            
+            /* KORREKTUR: Verhindert das Markieren von Text & die Google-Suche auf Mobilgeräten */
+            user-select: none;
+            -webkit-user-select: none; /* Für Safari/Chrome auf iOS */
+            -moz-user-select: none;    /* Für Firefox */
+            -ms-user-select: none;     /* Für ältere Edge Browser */
+            -webkit-touch-callout: none; /* Verhindert das Menü bei langem Drücken auf iOS */
         }
         
         .number-tile.found {
@@ -262,11 +260,6 @@
             20%, 60% { transform: translate(-50%, -50%) translateX(-5px) rotate(var(--rotation)); color: var(--error-color); }
             40%, 80% { transform: translate(-50%, -50%) translateX(5px) rotate(var(--rotation)); color: var(--error-color); }
         }
-        
-        .font-oswald { font-family: 'Oswald', sans-serif; }
-        .font-roboto-mono { font-family: 'Roboto Mono', monospace; }
-        .font-playfair { font-family: 'Playfair Display', serif; }
-        .font-marker { font-family: 'Permanent Marker', cursive; }
 
         .grid-overlay {
             position: absolute;
@@ -459,8 +452,6 @@
         #leaderboard-list li:last-child {
             border-bottom: none;
         }
-
-
     </style>
 </head>
 <body>
@@ -498,7 +489,6 @@
         <div id="countdown-overlay" class="modal-overlay">
             <div id="countdown-timer">3</div>
         </div>
-
 
         <header class="header">
             <div class="header-main">
@@ -569,15 +559,13 @@
 
     <script>
     document.addEventListener('DOMContentLoaded', () => {
-        // --- KORRIGIERT: Supabase Client Setup ---
+        // --- Supabase Client Setup ---
         const SUPABASE_URL = "https://xvdnahuhnqeeyqgfrmtk.supabase.co";
         const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inh2ZG5haHVobnFlZXlxZ2ZybXRrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTkxNTAyMTQsImV4cCI6MjA3NDcyNjIxNH0._LJwb7gayv9N8f4987EUCD1RqKqM6amR-09fam7dJWM";
 
-        let supabaseClient = null; // Wir benennen die Variable um, um Konflikte zu vermeiden.
+        let supabaseClient = null;
         try {
-            // Wir prüfen, ob die Supabase-Bibliothek (das globale 'supabase'-Objekt) geladen wurde
             if (window.supabase) {
-                // Wir verwenden die 'createClient' Funktion aus der globalen Bibliothek
                 supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
                 console.log("Supabase client initialized successfully.");
             } else {
@@ -886,7 +874,6 @@
             const leaderboardView = document.getElementById('leaderboard-view');
             
             showLeaderboardBtn.onclick = () => {
-                // Wir prüfen jetzt die korrigierte Variable 'supabaseClient'
                 if (!supabaseClient) {
                     alert("Ranglisten-Funktion ist nicht konfiguriert.");
                     return;
@@ -1191,7 +1178,7 @@
             const fragment = document.createDocumentFragment();
             layout.forEach(tileData => {
                 const tile = document.createElement('div');
-                tile.className = `number-tile ${tileData.fontClass}`;
+                tile.className = `number-tile`; // Font classes removed for simplicity
                 tile.dataset.value = tileData.value;
                 tile.textContent = tileData.value;
                 tile.style.setProperty('--rotation', `${tileData.rotationDeg}deg`);
@@ -1212,7 +1199,6 @@
         }
 
         function generateMasterLayout() {
-            const fonts = ['font-oswald', 'font-roboto-mono', 'font-playfair', 'font-marker'];
             const placedTiles = [];
             const boardRect = boardContainer.getBoundingClientRect();
             
@@ -1234,14 +1220,13 @@
             for (let i = 1; i <= 99; i++) {
                 const tileData = {
                     value: i,
-                    fontClass: fonts[i % fonts.length],
                     sizePx: minFontSize + prng() * fontSizeRange,
                     rotationDeg: prng() * 360,
                 };
 
                 let positionFound = false;
                 
-                tempTile.className = `number-tile ${tileData.fontClass}`;
+                tempTile.className = `number-tile`;
                 tempTile.textContent = i;
                 
                 for (let shrink = 0; shrink < MAX_SHRINK_ATTEMPTS; shrink++) {
@@ -1460,11 +1445,6 @@
             const bBottom = tileB.yPx + boxB.height / 2;
 
             return !(aRight < bLeft - gap || aLeft > bRight + gap || aBottom < bTop - gap || aTop > bBottom + gap);
-        }
-
-        initGame();
-    });
-    </script>urn !(aRight < bLeft - gap || aLeft > bRight + gap || aBottom < bTop - gap || aTop > bBottom + gap);
         }
 
         initGame();
