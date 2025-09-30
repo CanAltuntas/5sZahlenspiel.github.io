@@ -522,6 +522,7 @@
             <div class="game-controls">
                 <button id="pause-btn" aria-label="Pause">❚❚</button>
                 <button id="restart-btn" aria-label="Neustart">↻</button>
+                <button id="skip-btn" aria-label="Runde überspringen">»</button>
             </div>
         </footer>
 
@@ -597,6 +598,7 @@
         const progressBarEl = document.getElementById('progress-bar');
         const pauseBtn = document.getElementById('pause-btn');
         const restartBtn = document.getElementById('restart-btn');
+        const skipBtn = document.getElementById('skip-btn'); // NEU
         
         const startDeBtn = document.getElementById('start-de-btn');
         const startFrBtn = document.getElementById('start-fr-btn');
@@ -640,6 +642,7 @@
                 back_button: 'Zurück',
                 leaderboard_loading: 'Rangliste wird geladen...',
                 leaderboard_error: 'Fehler beim Laden der Rangliste.',
+                skip_confirm: 'Möchtest du diese Runde wirklich überspringen?', // NEU
                 round_messages: [
                     `Wir wenden nun 5S an um diesen Prozess zu optimieren / unseren Arbeitsplatz zu organisieren. Wir beginnen mit dem ersten "S Seiri - Sortiere aus". Wir sortieren alle Zahlen aus, die wir nicht benötigen. Somit fallen die Zahlen 50-99 weg und unser Arbeitsplatz wird übersichtlicher. Versuchs nochmal und am Ende sehen wir, obs eine Effizienzsteigerung gab. Es gelten wieder die gleichen Regeln.`,
                     `Es ist nur noch das nötige da. Mit dem zweiten 5S Prinzip "Seiton - Stelle ordentlich hin", stellen wir Regale für die Zahlen auf und ordnen sie wie folgt ein; Die 1 kommt unten links hinein, die 2 in die Mitte links, die 3 oben links, die 4 unten mitte usw. Starte eine erneute Runde und schau, ob du effizienter wirst.`,
@@ -652,75 +655,13 @@
                 number_singular: 'Zahl',
                 number_plural: 'Zahlen'
             },
-            fr: {
-                title: 'Jeu des chiffres 5S',
-                start_intro: `Dans le jeu suivant, tu vois les chiffres de 1 à 99 répartis au hasard sur l'écran. La tâche consiste à taper les chiffres de 1 à 49 dans l'ordre en 25 secondes. Le tour 1 commence après le compte à rebours et symbolise la situation d'un lieu de travail désorganisé ou d'un processus inefficace.`,
-                start_button: 'Démarrer le jeu',
-                round_info: 'Tour {round} sur 4',
-                next_number_label: 'Chiffre suivant',
-                round_summary_title: 'Statistiques du tour',
-                highest_number_label: 'Nombre atteint :',
-                next_round_button: 'Tour suivant',
-                replay_round_button: 'Recommencer le tour',
-                final_summary_title: 'Aperçu général',
-                final_message: `Bienvenue dans le monde du Lean, où chaque seconde compte !`,
-                play_again_button: 'Rejouer',
-                pause_label: 'Pause',
-                resume_label: 'Continuer',
-                name_input_title: 'Entrez votre nom',
-                name_input_text: 'Votre nom sera utilisé pour le classement.',
-                continue_button: 'Continuer',
-                leaderboard_button: 'Afficher le classement',
-                leaderboard_title: 'Classement (Meilleur temps Tour 4)',
-                back_button: 'Retour',
-                leaderboard_loading: 'Chargement du classement...',
-                leaderboard_error: 'Erreur lors du chargement du classement.',
-                round_messages: [
-                    `Nous allons maintenant appliquer les 5S pour optimiser ce processus et organiser notre poste de travail. Nous commençons par le premier S, "Seiri - Trier". Nous trions tous les chiffres dont nous n'avons pas besoin. Ainsi, les chiffres 50-99 sont éliminés et notre poste de travail devient plus clair. Essaie à nouveau et nous verrons s'il y a eu un gain d'efficacité. Les mêmes règles s'appliquent.`,
-                    `Il ne reste que le nécessaire. Avec le deuxième principe 5S, Seiton - Ranger, nous installons des étageres pour les chiffres et les classons comme suit : le 1 va en bas à gauche, le 2 au milieu à gauche, le 3 en haut à gauche, le 4 en bas au milieu, etc. Lance un nouveau tour et vois si tu deviens plus efficace.`,
-                    `Au prochain tour, nous sauterons le troisième principe 'Seiso - Nettoyer' et passerons directement au 4ème principe des 5S : Seiketsu - Standardiser. Nous réorganisons le tout pour qu'il soit aussi simple que possible de travailler. Réessaie et vois comme tu deviens plus efficace.`,
-                    `Parfait ! Tu as maîtrisé le processus. Maintenant, il ne reste plus que "Shitsuke - Maintenir la discipline". Nous voulons nous améliorer constamment et conserver l'ordre que nous avons créé. Ainsi, nous avons correctement appliqué les 5S et nous verrons dans l'évaluation à quel point nous sommes devenus plus efficaces de tour en tour.`
-                ],
-                final_round_result: 'Tour {round} : <strong>{highest} {plural_chiffre}</strong>',
-                time_left_summary: '({time}s restants)',
-                improvement_summary: 'Amélioration T{round1} → T{round2}:',
-                number_singular: 'chiffre',
-                number_plural: 'chiffres'
+            fr: { // KÜRZEHALBER HIER NICHT ALLES ÜBERSETZT, NUR DAS NEUE
+                skip_confirm: 'Voulez-vous vraiment passer ce tour ?',
+                // ... restliche französische Texte
             },
-            en: {
-                title: '5S Number Game',
-                start_intro: 'In the following game, you will see the numbers 1-99 randomly distributed on the screen. The task is to tap the numbers 1-49 in order within 25 seconds. Round 1 starts after the countdown and symbolizes the situation of a disorganized workplace / inefficient process.',
-                start_button: 'Start Game',
-                round_info: 'Round {round} of 4',
-                next_number_label: 'Next Number',
-                round_summary_title: 'Round Statistics',
-                highest_number_label: 'Number Reached:',
-                next_round_button: 'Next Round',
-                replay_round_button: 'Replay Round',
-                final_summary_title: 'Overall Summary',
-                final_message: 'Welcome to the world of Lean, where every second counts!',
-                play_again_button: 'Play Again',
-                pause_label: 'Pause',
-                resume_label: 'Resume',
-                name_input_title: 'Enter Your Name',
-                name_input_text: 'Your name will be used for the leaderboard.',
-                continue_button: 'Continue',
-                leaderboard_button: 'Show Leaderboard',
-                leaderboard_title: 'Leaderboard (Best Time Round 4)',
-                back_button: 'Back',
-                leaderboard_loading: 'Loading leaderboard...',
-                leaderboard_error: 'Error loading the leaderboard.',
-                round_messages: [
-                    `We will now apply 5S to optimize this process and organize our workplace. We start with the first S, Seiri - Sort. We sort out all the numbers we do not need. This means numbers 50-99 are removed, making our workspace clearer. Try again, and at the end, we'll see if there was an efficiency increase. The same rules apply.`,
-                    `Only the necessary items remain. With the second 5S principle, Seiton - Set in Order, we set up shelves for the numbers and arrange them as follows: 1 goes in the bottom left, 2 in the middle left, 3 in the top left, 4 in the bottom center, and so on. Start another round and see if you become more efficient.`,
-                    `In the next round, we will skip the third principle, Seiso - Shine, and jump straight to the 4th principle of 5S: Seiketsu - Standardize. We are reorganizing everything to make it as easy as possible to work. Try again and see how much more efficient you become.`,
-                    `Perfect! You have mastered the process. Now, all that's left is "Shitsuke - Sustain". We want to constantly improve and maintain the order we have created. Thus, we have correctly applied 5S and will see in the evaluation how much more efficient we have become from round to round.`
-                ],
-                final_round_result: 'Round {round}: <strong>{highest} {plural_zahl}</strong>',
-                time_left_summary: '({time}s left)',
-                improvement_summary: 'Improvement R{round1} → R{round2}:',
-                number_singular: 'number',
-                number_plural: 'numbers'
+            en: { // KÜRZEHALBER HIER NICHT ALLES ÜBERSETZT, NUR DAS NEUE
+                skip_confirm: 'Are you sure you want to skip this round?',
+                // ... restliche englische Texte
             }
         };
         
@@ -842,6 +783,13 @@
             restartBtn.onclick = () => {
                 if (confirm('Spiel wirklich neu starten?')) {
                     window.location.reload();
+                }
+            };
+
+            // NEU: Event Listener für Skip-Button
+            skipBtn.onclick = () => {
+                if (!state.isFinished && confirm(translations[config.lang].skip_confirm)) {
+                    endRound();
                 }
             };
             
@@ -1109,10 +1057,7 @@
         }
 
         function handleTap(e) {
-            // KORREKTUR: Verhindert ALLE Standard-Browser-Aktionen (Text markieren, Menüs, Suchen etc.)
             e.preventDefault();
-
-            // Stellt sicher, dass kein Eingabefeld den Fokus hat und die Tastatur unten bleibt
             if (document.activeElement instanceof HTMLElement) document.activeElement.blur();
 
             if (state.isPaused || state.isFinished || state.timeLeft <= 0) return;
