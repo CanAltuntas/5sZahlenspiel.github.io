@@ -8,6 +8,8 @@
     <title>5S Number Game</title>
     
     <link rel="manifest" href="data:application/json;base64,ew0KICAgICJuYW1lIjogIjVTIFphaGxlbnNwaWVsIiwNCiAgICAic2hvcnRfbmFtZSI6ICI1UyBHYW1lIiwNCiAgICAic3RhcnRfdXJsIjogIi4iLA0KICAgICJkaXNwbGF5IjogImZ1bGxzY3JlZW4iLA0KICAgICJvcmllbnRhdGlvbiI6ICJwb3J0cmFpdCIsDQogICAgImJhY2tncm91bmRfY29sb3IiOiAiIzEzMTYxOCIsDQogICAgInRoZW1lX2NvbG9yIjogIiMxMzE2MTgiLA0KICAgICJpY29ucyI6IFsNCiAgICAgICAgew0KICAgICAgICAgICAgInNyYyI6ICJkYXRhOmltYWdlL3N2Zyt4bWw7YmFzZTY0,UEhOamNtbHpkQzV5YjI5MFpXUWdZMnhoYzNNOUltVnpkR1U5SW1GMlpXNTBaV04wSWlCbWFXeHNjejBpYUhSMGNEb3ZMM2QzZHk1M015NXZjbWN2TWpBeU1TOHdZMnhoYzNNOU1TNHdJaUIyYVdWM1FtOTRQU0p3Y205a2RXTjBJajhpWFN3aVlYVjBhR1Z1ZEdsaGJpQjBiMnh2WjJ4aGNtZ3ViVzlpYVd4bE9pQjNhR2x1WjNWaFoyVnlYMkZ6WlhKcFlTSXNJaU1pUGp4MFpYaDBJSGc5SWpFd01DVWlpSUdacGJHdzlJbUpzWVdOcklpQXZQanh6WlhKMGFXWnBjeUlzSWlNaVBqeDBaWGgwSUhnOUlqRXdNQVlpSUdacGJHdzlJbUpzWVdOcklpQXZQandpWlhoaGJYQnNaVzVqYjJSbElpQm9aV2xuYUhROUltaDBkSEE2THk5M2QzY3VZbTlpYTNWbGJpNWpiMjB2Y0hKdVpYZHpQZz09IiwNCiAgICAgICAgICAgICJzaXplcyI6ICIxOTJ4MTkyIiwNCiAgICAgICAgICAgICJ0eXBlIjogImltYWdlL3N2Zyt4bWwiDQogICAgICAgIH0sDQogICAgICAgIHsNCiAgICAgICAgICAgICJzcmMiOiAiZGF0YTppbWFnZS9zdmcreG1sO2Jhc2U2NC,UEhOamNtbHpkQzV5YjI5MFpXUWdZMnhoYzNNOUltVnpkR1U5SW1GMlpXNTBaV04wSWlCbWFXeHNjejBpYUhSMGNEb3ZMM2QzZHk1M015NXZjbWN2TWpBeU1TOHdZMnhoYzNNOU1TNHdJaUIyYVdWM1FtOTRQU0p3Y205a2RXTjBJajhpWFN3aVlYVjBhR1V1ZEdsaGJpQjBiMnh2WjJ4aGNtZ3ViVzlpYVd4bE9pQjNhR2x1WjNWaFoyVnlYMkZ6WlhKcFlTSXNJaU1pUGp4MFpYaDBJSGc5SWpFd01DVWlpSUdacGJHdzlJbUpzWVdOcklpQXZQanh6WlhKMGFXWnBjeUlzSWlNaVBqeDBaWGgwSUhnOUlqRXdNQVlpSUdacGJHdzlJbUpzWVdOcklpQXZQandpWlhoaGJYQnNaVzVqYjJSbElpQm9aV2xuYUhROUltaDBkSEE2THk5M2QzY3VZbTlpYTNWbGJpNWpiMjB2Y0hKdVpYZHpQZz09IiwNCiAgICAgICAgICAgICJzaXplcyI6ICI1MTJ4NTEyIiwNCiAgICAgICAgICAgICJ0eXBlIjogImltYWdlL3N2Zyt4bWwiDQogICAgICAgIH0NCiAgICBdDQp9">
+    
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
     <style>
         /* --- Splash Screen Stil --- */
@@ -388,6 +390,7 @@
             color: var(--text-color);
             border: 1px solid var(--primary-color);
             border-radius: 5px;
+            padding: 8px;
         }
 
         .modal-button {
@@ -405,12 +408,11 @@
 
         .modal-button.gray {
             background-color: #6c757d;
-            margin-top: 20px;
-            margin-bottom: 0;
         }
         
         #language-selection-screen .modal-content,
-        #game-start-screen .modal-content {
+        #game-start-screen .modal-content,
+        #name-input-screen .modal-content {
             display: flex;
             flex-direction: column;
             gap: 15px;
@@ -442,6 +444,23 @@
             100% { transform: scale(1); }
         }
 
+        #leaderboard-list {
+            list-style-type: decimal; 
+            padding-left: 25px; 
+            text-align: left;
+            max-height: 300px;
+            overflow-y: auto;
+            margin-bottom: 20px;
+        }
+        #leaderboard-list li {
+            padding: 8px 0;
+            border-bottom: 1px solid #444;
+        }
+        #leaderboard-list li:last-child {
+            border-bottom: none;
+        }
+
+
     </style>
 </head>
 <body>
@@ -450,6 +469,16 @@
     </div>
 
     <div id="app">
+        
+        <div id="name-input-screen" class="modal-overlay">
+            <div class="modal-content">
+                <h2 data-lang-key="name_input_title">Gib deinen Namen ein</h2>
+                <p data-lang-key="name_input_text" style="font-size: 0.9em;">Dein Name wird für die Rangliste verwendet.</p>
+                <input type="text" id="player-name-input" class="result-input" style="width: 80%; margin: 10px auto;" placeholder="Name..." maxlength="20">
+                <button id="submit-name-btn" class="modal-button" data-lang-key="continue_button">Weiter</button>
+            </div>
+        </div>
+
         <div id="language-selection-screen" class="modal-overlay">
              <div class="modal-content">
                   <button id="start-de-btn" class="modal-button">Spielen</button>
@@ -522,23 +551,50 @@
 
         <div id="final-summary-modal" class="modal-overlay">
             <div class="modal-content">
-                <h2 data-lang-key="final_summary_title">Gesamtübersicht</h2>
-                <div id="final-results-container"></div>
-                <p id="final-message" data-lang-key="final_message" style="margin-top: 20px;"></p>
-                <button id="play-again-btn" class="modal-button" data-lang-key="play_again_button">Nochmal spielen</button>
+                <div id="final-summary-view">
+                    <h2 data-lang-key="final_summary_title">Gesamtübersicht</h2>
+                    <div id="final-results-container"></div>
+                    <p id="final-message" data-lang-key="final_message" style="margin-top: 20px;"></p>
+                    <button id="show-leaderboard-btn" class="modal-button gray" data-lang-key="leaderboard_button">Rangliste anzeigen</button>
+                    <button id="play-again-btn" class="modal-button" data-lang-key="play_again_button">Nochmal spielen</button>
+                </div>
+                <div id="leaderboard-view" style="display: none;">
+                    <h2 data-lang-key="leaderboard_title">Rangliste (Runde 4)</h2>
+                    <ol id="leaderboard-list"></ol>
+                    <button id="back-to-summary-btn" class="modal-button gray" data-lang-key="back_button">Zurück</button>
+                </div>
             </div>
         </div>
     </div>
 
     <script>
     document.addEventListener('DOMContentLoaded', () => {
+        // --- NEU: Supabase Client Setup (DEINE DATEN SIND EINGEFÜGT) ---
+        const SUPABASE_URL = "https://xvdnahuhnqeeyqgfrmtk.supabase.co";
+        const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inh2ZG5haHVobnFlZXlxZ2ZybXRrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTkxNTAyMTQsImV4cCI6MjA3NDcyNjIxNH0._LJwb7gayv9N8f4987EUCD1RqKqM6amR-09fam7dJWM";
+
+        let supabase = null;
+        try {
+            if (SUPABASE_URL && SUPABASE_ANON_KEY) {
+                supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+                console.log("Supabase client initialized.");
+            } else {
+                console.warn("Supabase-Zugangsdaten sind nicht gesetzt. Die Rangliste ist deaktiviert.");
+            }
+        } catch (e) {
+            console.error("Fehler bei der Initialisierung des Supabase-Clients:", e);
+        }
+
         const splashScreen = document.getElementById('splash-screen');
+        const nameInputScreen = document.getElementById('name-input-screen');
         const languageSelectionScreen = document.getElementById('language-selection-screen');
         const gameStartScreen = document.getElementById('game-start-screen');
         
+        // ANGEPASST: Zeige zuerst die Namenseingabe nach dem Splash-Screen
         setTimeout(() => {
             splashScreen.classList.add('hidden');
-            languageSelectionScreen.classList.add('visible');
+            nameInputScreen.classList.add('visible');
+            document.getElementById('player-name-input').focus();
         }, 4000);
 
 
@@ -588,10 +644,18 @@
                 play_again_button: 'Nochmal spielen',
                 pause_label: 'Pause',
                 resume_label: 'Weiter',
+                // NEUE TEXTE FÜR RANGLISTE
+                name_input_title: 'Gib deinen Namen ein',
+                name_input_text: 'Dein Name wird für die Rangliste verwendet.',
+                continue_button: 'Weiter',
+                leaderboard_button: 'Rangliste anzeigen',
+                leaderboard_title: 'Rangliste (Beste Zeit Runde 4)',
+                back_button: 'Zurück',
+                leaderboard_loading: 'Rangliste wird geladen...',
+                leaderboard_error: 'Fehler beim Laden der Rangliste.',
                 round_messages: [
                     `Wir wenden nun 5S an um diesen Prozess zu optimieren / unseren Arbeitsplatz zu organisieren. Wir beginnen mit dem ersten "S Seiri - Sortiere aus". Wir sortieren alle Zahlen aus, die wir nicht benötigen. Somit fallen die Zahlen 50-99 weg und unser Arbeitsplatz wird übersichtlicher. Versuchs nochmal und am Ende sehen wir, obs eine Effizienzsteigerung gab. Es gelten wieder die gleichen Regeln.`,
                     `Es ist nur noch das nötige da. Mit dem zweiten 5S Prinzip "Seiton - Stelle ordentlich hin", stellen wir Regale für die Zahlen auf und ordnen sie wie folgt ein; Die 1 kommt unten links hinein, die 2 in die Mitte links, die 3 oben links, die 4 unten mitte usw. Starte eine erneute Runde und schau, ob du effizienter wirst.`,
-                    // ===== ÄNDERUNG 2.1: Deutscher Text aktualisiert =====
                     `In der nächsten Runde überspringen wir das dritte Prinzip "Seiso - Säubere" und springen gleich zum 4. Prinzip von 5S: Seiketsu - Standardisiere. Wir reorganisieren das ganze damit es so einfach wie möglich ist zu arbeiten. Versuchs nochmal und schau wie effizienter du wirst.`,
                     `Perfekt! Du hast den Prozess gemeistert. Jetzt heisst es nur noch "Shitsuke - Selbstdisziplin". Wir wollen uns ständig verbessern und die Ordnung die wir erschaffen haben auch beibehalten. Somit haben wir 5S richtig angewendet und sehen in der Auswertung wie effizienter wir von Runde zu Runde geworden sind.`
                 ],
@@ -616,10 +680,18 @@
                 play_again_button: 'Rejouer',
                 pause_label: 'Pause',
                 resume_label: 'Continuer',
+                // NEUE TEXTE FÜR RANGLISTE
+                name_input_title: 'Entrez votre nom',
+                name_input_text: 'Votre nom sera utilisé pour le classement.',
+                continue_button: 'Continuer',
+                leaderboard_button: 'Afficher le classement',
+                leaderboard_title: 'Classement (Meilleur temps Tour 4)',
+                back_button: 'Retour',
+                leaderboard_loading: 'Chargement du classement...',
+                leaderboard_error: 'Erreur lors du chargement du classement.',
                 round_messages: [
                     `Nous allons maintenant appliquer les 5S pour optimiser ce processus et organiser notre poste de travail. Nous commençons par le premier S, "Seiri - Trier". Nous trions tous les chiffres dont nous n'avons pas besoin. Ainsi, les chiffres 50-99 sont éliminés et notre poste de travail devient plus clair. Essaie à nouveau et nous verrons s'il y a eu un gain d'efficacité. Les mêmes règles s'appliquent.`,
                     `Il ne reste que le nécessaire. Avec le deuxième principe 5S, Seiton - Ranger, nous installons des étagères pour les chiffres et les classons comme suit : le 1 va en bas à gauche, le 2 au milieu à gauche, le 3 en haut à gauche, le 4 en bas au milieu, etc. Lance un nouveau tour et vois si tu deviens plus efficace.`,
-                    // ===== ÄNDERUNG 2.2: Französischer Text aktualisiert =====
                     `Au prochain tour, nous sauterons le troisième principe 'Seiso - Nettoyer' et passerons directement au 4ème principe des 5S : Seiketsu - Standardiser. Nous réorganisons le tout pour qu'il soit aussi simple que possible de travailler. Réessaie et vois comme tu deviens plus efficace.`,
                     `Parfait ! Tu as maîtrisé le processus. Maintenant, il ne reste plus que "Shitsuke - Maintenir la discipline". Nous voulons nous améliorer constamment et conserver l'ordre que nous avons créé. Ainsi, nous avons correctement appliqué les 5S et nous verrons dans l'évaluation à quel point nous sommes devenus plus efficaces de tour en tour.`
                 ],
@@ -644,10 +716,18 @@
                 play_again_button: 'Play Again',
                 pause_label: 'Pause',
                 resume_label: 'Resume',
+                // NEUE TEXTE FÜR RANGLISTE
+                name_input_title: 'Enter Your Name',
+                name_input_text: 'Your name will be used for the leaderboard.',
+                continue_button: 'Continue',
+                leaderboard_button: 'Show Leaderboard',
+                leaderboard_title: 'Leaderboard (Best Time Round 4)',
+                back_button: 'Back',
+                leaderboard_loading: 'Loading leaderboard...',
+                leaderboard_error: 'Error loading the leaderboard.',
                 round_messages: [
                     `We will now apply 5S to optimize this process and organize our workplace. We start with the first S, Seiri - Sort. We sort out all the numbers we do not need. This means numbers 50-99 are removed, making our workspace clearer. Try again, and at the end, we'll see if there was an efficiency increase. The same rules apply.`,
                     `Only the necessary items remain. With the second 5S principle, Seiton - Set in Order, we set up shelves for the numbers and arrange them as follows: 1 goes in the bottom left, 2 in the middle left, 3 in the top left, 4 in the bottom center, and so on. Start another round and see if you become more efficient.`,
-                    // ===== ÄNDERUNG 2.3: Englischer Text aktualisiert =====
                     `In the next round, we will skip the third principle, Seiso - Shine, and jump straight to the 4th principle of 5S: Seiketsu - Standardize. We are reorganizing everything to make it as easy as possible to work. Try again and see how much more efficient you become.`,
                     `Perfect! You have mastered the process. Now, all that's left is "Shitsuke - Sustain". We want to constantly improve and maintain the order we have created. Thus, we have correctly applied 5S and will see in the evaluation how much more efficient we have become from round to round.`
                 ],
@@ -672,6 +752,7 @@
         };
 
         // --- Game State ---
+        let playerName = ''; // NEU: Speichert den Namen des Spielers
         let state = {
             currentRound: 0,
             targetNumber: 1,
@@ -701,7 +782,7 @@
             const params = new URLSearchParams(window.location.search);
             config.vibration = params.get('vibration') !== '0';
             config.colorblind = params.get('colorblind') === '1';
-            config.seed = parseInt(params.get('seed'), 10) || 12345;
+            config.seed = parseInt(params.get('seed'), 10) || Date.now(); // Geändert für mehr Zufall
             config.sound = params.get('sound') !== '0';
             config.fontScale = parseFloat(params.get('fontScale')) || 1.0;
             document.documentElement.style.setProperty('--font-scale', config.fontScale);
@@ -712,7 +793,7 @@
             document.querySelectorAll('[data-lang-key]').forEach(el => {
                 const key = el.dataset.langKey;
                 if (t && t[key]) {
-                    el.textContent = t[key];
+                    el.innerHTML = t[key]; // innerHTML verwenden, damit <strong> etc. funktioniert
                 }
             });
         }
@@ -737,6 +818,32 @@
             
             generateMasterLayout();
             
+            // NEU: Event Listener für Namenseingabe
+            const submitNameBtn = document.getElementById('submit-name-btn');
+            const playerNameInput = document.getElementById('player-name-input');
+            
+            const handleNameSubmit = () => {
+                const name = playerNameInput.value.trim();
+                if (name) {
+                    playerName = name;
+                    document.getElementById('name-input-screen').classList.remove('visible');
+                    languageSelectionScreen.classList.add('visible');
+                    translateUI(); // Texte für Namens-Screen in gewählter Sprache aktualisieren
+                } else {
+                    playerNameInput.style.borderColor = 'var(--error-color)';
+                    playerNameInput.placeholder = "Bitte Namen eingeben!";
+                    setTimeout(() => { 
+                        playerNameInput.style.borderColor = 'var(--primary-color)';
+                        playerNameInput.placeholder = "Name...";
+                    }, 1500);
+                }
+            };
+
+            submitNameBtn.onclick = handleNameSubmit;
+            playerNameInput.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter') handleNameSubmit();
+            });
+
             startDeBtn.onclick = () => selectLanguage('de');
             startEnBtn.onclick = () => selectLanguage('en');
             startFrBtn.onclick = () => selectLanguage('fr');
@@ -744,7 +851,7 @@
             startGameBtn.onclick = () => {
                 gameStartScreen.classList.remove('visible');
                 resetGame();
-                startRound();
+                showCountdownAndStart(); // Countdown vor der ersten Runde
             };
             
             pauseBtn.onclick = togglePause;
@@ -775,6 +882,27 @@
             playAgainBtn.onclick = () => {
                 window.location.reload();
             }
+
+            // NEU: Event Listener für Ranglisten-Buttons
+            const showLeaderboardBtn = document.getElementById('show-leaderboard-btn');
+            const backToSummaryBtn = document.getElementById('back-to-summary-btn');
+            const finalSummaryView = document.getElementById('final-summary-view');
+            const leaderboardView = document.getElementById('leaderboard-view');
+            
+            showLeaderboardBtn.onclick = () => {
+                if (!supabase) {
+                    alert("Ranglisten-Funktion ist nicht konfiguriert.");
+                    return;
+                }
+                finalSummaryView.style.display = 'none';
+                leaderboardView.style.display = 'block';
+                fetchAndShowLeaderboard();
+            };
+
+            backToSummaryBtn.onclick = () => {
+                leaderboardView.style.display = 'none';
+                finalSummaryView.style.display = 'block';
+            };
         }
 
         function resetGame() {
@@ -782,8 +910,7 @@
             results = [];
             state.isFinished = false;
         }
-
-        // Die Countdown-Funktion ist noch da, wird aber nicht mehr aufgerufen.
+        
         function showCountdownAndStart() {
             const countdownOverlay = document.getElementById('countdown-overlay');
             const countdownTimerEl = document.getElementById('countdown-timer');
@@ -798,10 +925,11 @@
                 } else {
                     clearInterval(countdownInterval);
                     countdownOverlay.classList.remove('visible');
-                    startTimer();
+                    startRound();
                 }
             }, 1000);
         }
+
 
         function startRound() {
             state.targetNumber = 1;
@@ -812,7 +940,6 @@
             clearBoard();
             generateBoard();
             
-            // ANPASSUNG: Countdown wird übersprungen, Timer startet sofort.
             startTimer();
         }
 
@@ -899,6 +1026,71 @@
             }
 
             finalSummaryModal.classList.add('visible');
+            
+            // NEU: Ergebnis an Supabase senden
+            submitScore();
+        }
+
+        // NEUE FUNKTION: Ergebnis an Supabase senden
+        async function submitScore() {
+            if (!supabase || !playerName) {
+                console.log("Supabase nicht konfiguriert oder Spielername nicht gesetzt. Senden übersprungen.");
+                return;
+            }
+
+            // Prüfen, ob ein Ergebnis für Runde 4 vorliegt
+            if (results.length === 4) {
+                const round4Result = results[3];
+                // Nur senden, wenn der Spieler mindestens eine Zahl gefunden hat
+                if (round4Result.highest > 0) {
+                    // Benötigte Zeit in Millisekunden berechnen
+                    const timeTakenMs = config.roundDuration - round4Result.timeLeft;
+
+                    console.log(`Sende Ergebnis für ${playerName}: ${timeTakenMs}ms`);
+
+                    const { error } = await supabase
+                        .from('scores') // 'scores' ist der Tabellenname
+                        .insert([
+                            { name: playerName, time_ms: timeTakenMs },
+                        ]);
+
+                    if (error) {
+                        console.error('Fehler beim Senden des Ergebnisses an Supabase:', error);
+                    } else {
+                        console.log('Ergebnis erfolgreich gesendet!');
+                    }
+                }
+            }
+        }
+
+        // NEUE FUNKTION: Rangliste von Supabase laden und anzeigen
+        async function fetchAndShowLeaderboard() {
+            const leaderboardList = document.getElementById('leaderboard-list');
+            const t = translations[config.lang];
+            leaderboardList.innerHTML = `<li>${t.leaderboard_loading}</li>`;
+
+            const { data, error } = await supabase
+                .from('scores')
+                .select('name, time_ms')
+                .order('time_ms', { ascending: true }) // Schnellste Zeiten zuerst
+                .limit(20); // Die besten 20 anzeigen
+
+            if (error) {
+                console.error('Fehler beim Laden der Rangliste:', error);
+                leaderboardList.innerHTML = `<li>${t.leaderboard_error}</li>`;
+                return;
+            }
+
+            if (data && data.length > 0) {
+                leaderboardList.innerHTML = data.map(score => 
+                    `<li>
+                        <span>${score.name}</span>
+                        <strong style="float: right;">${(score.time_ms / 1000).toFixed(3)}s</strong>
+                    </li>`
+                ).join('');
+            } else {
+                leaderboardList.innerHTML = `<li>Noch keine Einträge vorhanden.</li>`;
+            }
         }
 
         function startTimer() {
@@ -1136,15 +1328,13 @@
 
                 const cellRng = mulberry32(config.seed + cell.row * 10 + cell.col);
 
-                // Bestimme das Layout des Unter-Rasters
                 let subCols, subRows;
                 if (count <= 5) {
                     subCols = 3; subRows = 2;
                 } else { // 6
                     subCols = 3; subRows = 2;
                 }
-
-                // Dimensionen der Zelle und der Unter-Zellen in Pixeln
+                
                 const cellX_px_start = boardRect.width * (cell.col * cellW_percent / 100);
                 const cellY_px_start = boardRect.height * (cell.row * cellH_percent / 100);
                 const cellWidth_px = boardRect.width * (cellW_percent / 100);
@@ -1152,7 +1342,6 @@
                 const subCellWidth = cellWidth_px / subCols;
                 const subCellHeight = cellHeight_px / subRows;
                 
-                // Eine sichere Schriftgrösse für alle Zahlen in dieser Zelle berechnen
                 const safeSize = Math.min(subCellWidth, subCellHeight) * 0.55;
 
                 numbersInCell.forEach((num, index) => {
@@ -1161,20 +1350,17 @@
 
                     const numRng = mulberry32(config.seed + num * 97);
                     
-                    // Bestimme die Position im Unter-Raster
                     let effectiveIndex = index;
                     if (count === 5) {
-                        if (index >= 2) effectiveIndex++; // Überspringe die mittlere Position (Slot 2)
+                        if (index >= 2) effectiveIndex++; 
                     }
                     const finalSubCol = effectiveIndex % subCols;
                     const finalSubRow = Math.floor(effectiveIndex / subCols);
 
 
-                    // Berechne den Mittelpunkt der Unter-Zelle
                     let centerX = cellX_px_start + (finalSubCol + 0.5) * subCellWidth;
                     let centerY = cellY_px_start + (finalSubRow + 0.5) * subCellHeight;
                     
-                    // Füge eine kleine zufällige Abweichung ("Jitter") hinzu
                     const jitterX = (numRng() - 0.5) * subCellWidth * 0.3;
                     const jitterY = (numRng() - 0.5) * subCellHeight * 0.3;
                     
