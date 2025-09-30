@@ -233,12 +233,11 @@
             transition: transform 0.1s ease-out, opacity 0.2s, color 0.1s;
             transform-origin: center center;
             
-            /* KORREKTUR: Verhindert das Markieren von Text & die Google-Suche auf Mobilgeräten */
             user-select: none;
-            -webkit-user-select: none; /* Für Safari/Chrome auf iOS */
-            -moz-user-select: none;    /* Für Firefox */
-            -ms-user-select: none;     /* Für ältere Edge Browser */
-            -webkit-touch-callout: none; /* Verhindert das Menü bei langem Drücken auf iOS */
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            -webkit-touch-callout: none;
         }
         
         .number-tile.found {
@@ -678,7 +677,7 @@
                 leaderboard_error: 'Erreur lors du chargement du classement.',
                 round_messages: [
                     `Nous allons maintenant appliquer les 5S pour optimiser ce processus et organiser notre poste de travail. Nous commençons par le premier S, "Seiri - Trier". Nous trions tous les chiffres dont nous n'avons pas besoin. Ainsi, les chiffres 50-99 sont éliminés et notre poste de travail devient plus clair. Essaie à nouveau et nous verrons s'il y a eu un gain d'efficacité. Les mêmes règles s'appliquent.`,
-                    `Il ne reste que le nécessaire. Avec le deuxième principe 5S, Seiton - Ranger, nous installons des étagères pour les chiffres et les classons comme suit : le 1 va en bas à gauche, le 2 au milieu à gauche, le 3 en haut à gauche, le 4 en bas au milieu, etc. Lance un nouveau tour et vois si tu deviens plus efficace.`,
+                    `Il ne reste que le nécessaire. Avec le deuxième principe 5S, Seiton - Ranger, nous installons des étageres pour les chiffres et les classons comme suit : le 1 va en bas à gauche, le 2 au milieu à gauche, le 3 en haut à gauche, le 4 en bas au milieu, etc. Lance un nouveau tour et vois si tu deviens plus efficace.`,
                     `Au prochain tour, nous sauterons le troisième principe 'Seiso - Nettoyer' et passerons directement au 4ème principe des 5S : Seiketsu - Standardiser. Nous réorganisons le tout pour qu'il soit aussi simple que possible de travailler. Réessaie et vois comme tu deviens plus efficace.`,
                     `Parfait ! Tu as maîtrisé le processus. Maintenant, il ne reste plus que "Shitsuke - Maintenir la discipline". Nous voulons nous améliorer constamment et conserver l'ordre que nous avons créé. Ainsi, nous avons correctement appliqué les 5S et nous verrons dans l'évaluation à quel point nous sommes devenus plus efficaces de tour en tour.`
                 ],
@@ -1110,7 +1109,10 @@
         }
 
         function handleTap(e) {
-            // NEU: Stellt sicher, dass kein Eingabefeld den Fokus hat und die Tastatur unten bleibt
+            // KORREKTUR: Verhindert ALLE Standard-Browser-Aktionen (Text markieren, Menüs, Suchen etc.)
+            e.preventDefault();
+
+            // Stellt sicher, dass kein Eingabefeld den Fokus hat und die Tastatur unten bleibt
             if (document.activeElement instanceof HTMLElement) document.activeElement.blur();
 
             if (state.isPaused || state.isFinished || state.timeLeft <= 0) return;
@@ -1181,7 +1183,7 @@
             const fragment = document.createDocumentFragment();
             layout.forEach(tileData => {
                 const tile = document.createElement('div');
-                tile.className = `number-tile`; // Font classes removed for simplicity
+                tile.className = `number-tile`;
                 tile.dataset.value = tileData.value;
                 tile.textContent = tileData.value;
                 tile.style.setProperty('--rotation', `${tileData.rotationDeg}deg`);
